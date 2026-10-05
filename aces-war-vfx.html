@@ -1,0 +1,2690 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>⚔ حرب الاكك — Aces War v2</title>
+  <style>
+    :root {
+      --bg: #05090a;
+      --felt: #0c1c10;
+      --felt2: #091410;
+      --felt3: #071208;
+      --gold: #c89820;
+      --gold2: #e8c050;
+      --g3: rgba(200, 152, 32, .13);
+      --rc: #cc2200;
+      --tx: #ddd5b5;
+      --dim: #68604a;
+      --dim2: #1e2c1e;
+      --hpg: #29883a;
+      --hpr: #bb2200;
+      --ac: #1a3888;
+      --bb: #0b1710;
+      --bbh: #151f12;
+      --cw: 52px;
+      --ch: 78px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--tx);
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      direction: rtl;
+      font-size: 14px
+    }
+
+    button {
+      font-family: inherit
+    }
+
+    #game {
+      display: flex;
+      flex-direction: column;
+      height: 100vh
+    }
+
+    /* ── PLAYER ZONES ── */
+    .pz {
+      background: linear-gradient(180deg, var(--felt) 0%, var(--felt2) 100%);
+      border: 1px solid var(--dim2);
+      padding: 5px 8px;
+      flex-shrink: 0;
+      transition: border-color .3s, box-shadow .3s
+    }
+
+    .pz.act {
+      border-color: rgba(200, 152, 32, .55);
+      box-shadow: inset 0 0 28px rgba(200, 152, 32, .07)
+    }
+
+    .phdr {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 3px
+    }
+
+    .pnm {
+      font-size: .88rem;
+      color: var(--gold);
+      font-weight: 700;
+      min-width: 54px
+    }
+
+    .ttag {
+      font-size: .59rem;
+      background: var(--gold);
+      color: #000;
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-weight: 700
+    }
+
+    .aitag {
+      font-size: .59rem;
+      background: var(--ac);
+      color: #99bbff;
+      border: 1px solid #2255aa;
+      border-radius: 3px;
+      padding: 1px 4px
+    }
+
+    .abg {
+      background: var(--ac);
+      color: #99bbff;
+      border: 1px solid #2255aa;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: .7rem;
+      white-space: nowrap
+    }
+
+    .hpw {
+      flex: 1;
+      min-width: 75px
+    }
+
+    .hpl {
+      font-size: .59rem;
+      color: var(--dim);
+      margin-bottom: 1px
+    }
+
+    .hpb {
+      height: 9px;
+      background: #070e07;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid #182018
+    }
+
+    .hpf {
+      height: 100%;
+      background: var(--hpg);
+      transition: width .4s, background .4s
+    }
+
+    .hpf.lo {
+      background: var(--hpr)
+    }
+
+    .hpt {
+      font-size: .6rem;
+      color: var(--dim);
+      margin-top: 1px
+    }
+
+    .hlbl {
+      font-size: .6rem;
+      color: var(--dim);
+      white-space: nowrap
+    }
+
+    /* ── FARMS ── */
+    .frow {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
+      min-height: 28px
+    }
+
+    .ftile {
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: .6rem;
+      min-width: 74px;
+      max-width: 132px
+    }
+
+    .ftile.weak {
+      background: rgba(80, 60, 10, .2);
+      border: 1px solid rgba(130, 100, 20, .3)
+    }
+
+    .ftile.strong {
+      background: var(--g3);
+      border: 1px solid rgba(200, 152, 32, .4)
+    }
+
+    .fnm {
+      font-weight: 700;
+      font-size: .61rem
+    }
+
+    .ftile.weak .fnm {
+      color: #bb9930
+    }
+
+    .ftile.strong .fnm {
+      color: var(--gold2)
+    }
+
+    .fef {
+      color: var(--dim);
+      margin-top: 1px
+    }
+
+    .fhpb {
+      height: 3px;
+      background: #070e07;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 2px
+    }
+
+    .fhpf {
+      height: 100%;
+      background: var(--hpg);
+      transition: width .3s
+    }
+
+    .fhpf.lo {
+      background: var(--hpr)
+    }
+
+    /* ── HAND ── */
+    .ha {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 3px;
+      overflow-x: auto;
+      padding: 2px 0 2px;
+      min-height: 80px;
+      align-items: flex-end
+    }
+
+    /* ── CARDS ── */
+    .card {
+      width: var(--cw);
+      height: var(--ch);
+      border-radius: 5px;
+      border: 1.5px solid #999;
+      background: linear-gradient(155deg, #fffff2 0%, #f4efd8 100%);
+      color: #111;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2px 3px;
+      font-size: .66rem;
+      font-weight: 700;
+      transition: transform .12s, box-shadow .12s, border-color .12s;
+      user-select: none;
+      flex-shrink: 0;
+      line-height: 1.1
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, .65)
+    }
+
+    .card.sel {
+      border-color: var(--gold);
+      transform: translateY(-12px);
+      box-shadow: 0 12px 26px rgba(200, 152, 32, .55)
+    }
+
+    .card.rd {
+      color: var(--rc)
+    }
+
+    .card .cm {
+      font-size: .9rem;
+      text-align: center
+    }
+
+    .card .cb {
+      transform: rotate(180deg)
+    }
+
+    .cbk {
+      width: var(--cw);
+      height: var(--ch);
+      border-radius: 5px;
+      border: 1.5px solid #1a2a3a;
+      background: linear-gradient(135deg, #1a3a8f 0%, #0d2060 50%, #1a3a8f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      color: #3355aa;
+      flex-shrink: 0
+    }
+
+    /* ── CENTER ── */
+    #center {
+      background: var(--felt3);
+      border-top: 1px solid var(--dim2);
+      border-bottom: 1px solid var(--dim2);
+      display: flex;
+      gap: 6px;
+      padding: 5px 8px;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden
+    }
+
+    /* ── ACTION PANEL ── */
+    #ap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 155px;
+      width: 155px;
+      flex-shrink: 0;
+      overflow-y: auto
+    }
+
+    #phb {
+      background: rgba(200, 152, 32, .1);
+      border: 1px solid rgba(200, 152, 32, .27);
+      border-radius: 4px;
+      padding: 3px 5px;
+      font-size: .67rem;
+      color: var(--gold);
+      text-align: center;
+      line-height: 1.3
+    }
+
+    #si {
+      font-size: .62rem;
+      color: var(--dim);
+      min-height: 12px
+    }
+
+    #flags {
+      font-size: .58rem;
+      color: #aa6600;
+      text-align: center;
+      min-height: 11px
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      background: var(--bb);
+      color: var(--tx);
+      border: 1px solid rgba(200, 152, 32, .2);
+      border-radius: 4px;
+      padding: 3px 6px;
+      font-size: .67rem;
+      cursor: pointer;
+      text-align: center;
+      transition: background .12s, border-color .12s;
+      direction: rtl;
+      line-height: 1.2;
+      width: 100%
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--bbh);
+      border-color: var(--gold)
+    }
+
+    .btn:disabled {
+      opacity: .28;
+      cursor: not-allowed
+    }
+
+    .btn.pri {
+      background: rgba(200, 152, 32, .17);
+      border-color: var(--gold);
+      color: var(--gold2)
+    }
+
+    .btn.pri:hover:not(:disabled) {
+      background: rgba(200, 152, 32, .3)
+    }
+
+    .btn.dan {
+      background: rgba(140, 15, 5, .2);
+      border-color: #661100;
+      color: #ffaa99
+    }
+
+    .btn.dan:hover:not(:disabled) {
+      background: rgba(140, 15, 5, .35)
+    }
+
+    .btn.sm {
+      font-size: .61rem;
+      padding: 2px 5px
+    }
+
+    .btn.info {
+      border-color: #2255aa;
+      color: #99bbff
+    }
+
+    .btn.info:hover:not(:disabled) {
+      background: rgba(26, 56, 136, .2)
+    }
+
+    /* ── TABLE ── */
+    #tbl {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background: radial-gradient(ellipse at center, #0d2212 0%, #070f09 100%);
+      border: 1px solid #1a3020;
+      border-radius: 8px;
+      padding: 6px;
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden
+    }
+
+    .tbl-pile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0
+    }
+
+    .tbl-lbl {
+      font-size: .6rem;
+      color: var(--dim);
+      text-align: center
+    }
+
+    .tbl-cnt {
+      font-size: .72rem;
+      color: var(--gold);
+      font-weight: 700;
+      min-height: 15px;
+      text-align: center
+    }
+
+    .deck-stack {
+      position: relative;
+      width: var(--cw);
+      height: var(--ch)
+    }
+
+    #tbl-mid {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 0
+    }
+
+    #tbl-stat {
+      font-size: .72rem;
+      color: var(--gold2);
+      font-weight: 700;
+      text-align: center;
+      min-height: 16px
+    }
+
+    #tbl-sub {
+      font-size: .62rem;
+      color: var(--dim);
+      text-align: center;
+      min-height: 13px
+    }
+
+    #turn-ctr {
+      font-size: .6rem;
+      color: var(--gold);
+      text-align: center;
+      margin-top: 2px;
+      font-weight: 700
+    }
+
+    #played-pile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: var(--cw);
+      height: var(--ch);
+      flex-shrink: 0
+    }
+
+    /* ── MODAL — SOLID BLACK ── */
+    #mov {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100
+    }
+
+    #mov.on {
+      display: flex
+    }
+
+    #mbox {
+      background: #080f08;
+      border: 2px solid var(--gold);
+      border-radius: 9px;
+      padding: 14px;
+      max-width: 380px;
+      width: 92%;
+      direction: rtl;
+      max-height: 90vh;
+      overflow-y: auto
+    }
+
+    .mt {
+      color: var(--gold2);
+      font-size: .88rem;
+      font-weight: 700;
+      margin-bottom: 6px
+    }
+
+    .mb {
+      font-size: .74rem;
+      line-height: 1.65;
+      color: var(--tx);
+      margin-bottom: 10px;
+      white-space: pre-line
+    }
+
+    .mbs {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    /* ── HANDOFF — SOLID BLACK ── */
+    /* ══ LOCK SCREEN — redesigned ══════════════════════════════ */
+    #hoff {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at 30% 25%, #0a1a0f 0%, #030b08 55%, #02080a 100%);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0; z-index: 200; overflow: hidden; padding: 24px;
+    }
+    #hoff.on { display: flex; animation: hoFadeIn .35s cubic-bezier(.25,.8,.25,1); }
+    @keyframes hoFadeIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
+
+    /* Animated dot-grid background */
+    #ho-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(200,152,32,.22) 1px, transparent 1px);
+      background-size: 36px 36px;
+      animation: hoGridMove 25s linear infinite; opacity: .45;
+    }
+    @keyframes hoGridMove { from { background-position: 0 0; } to { background-position: 36px 36px; } }
+
+    /* Floating suit symbols */
+    #ho-suits {
+      position: absolute; inset: 0; pointer-events: none;
+      display: flex; flex-wrap: wrap; gap: 28px;
+      align-items: center; justify-content: center;
+      opacity: .035; font-size: 3.2rem; color: var(--gold);
+      animation: hoSuitsRotate 80s linear infinite;
+      user-select: none;
+    }
+    @keyframes hoSuitsRotate { from { transform: rotate(0deg) scale(1); } to { transform: rotate(5deg) scale(1.05); } }
+
+    /* Corner glow accents */
+    #hoff::before {
+      content: ''; position: absolute;
+      top: -80px; left: -80px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(200,152,32,.12) 0%, transparent 70%);
+      animation: hoGlow 4s ease-in-out infinite alternate;
+    }
+    #hoff::after {
+      content: ''; position: absolute;
+      bottom: -80px; right: -80px;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(200,152,32,.09) 0%, transparent 70%);
+      animation: hoGlow 4s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes hoGlow { from { opacity: .6; } to { opacity: 1; } }
+
+    /* Lock icon */
+    #ho-lock {
+      position: relative; z-index: 1;
+      font-size: 3rem; margin-bottom: 10px;
+      animation: hoPulse 2.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 14px rgba(200,152,32,.45));
+    }
+    @keyframes hoPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.09)} }
+
+    /* Title */
+    #hott {
+      position: relative; z-index: 1;
+      font-size: 1.55rem; font-weight: 700; color: var(--gold2);
+      text-align: center; padding: 0 20px; margin-bottom: 3px;
+      text-shadow: 0 0 22px rgba(200,152,32,.45);
+    }
+
+    /* Subtitle */
+    #hots {
+      position: relative; z-index: 1;
+      font-size: .75rem; color: var(--dim);
+      text-align: center; margin-bottom: 18px;
+    }
+
+    /* HP mini-cards for both players */
+    #ho-stats {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 12px; width: 100%; max-width: 320px;
+    }
+    .ho-plr {
+      flex: 1; background: rgba(0,0,0,.55);
+      border: 1px solid var(--dim2); border-radius: 9px;
+      padding: 10px 12px; text-align: center;
+      transition: border-color .3s, background .3s;
+    }
+    .ho-plr.hoact {
+      border-color: var(--gold);
+      background: rgba(200,152,32,.1);
+      box-shadow: 0 0 14px rgba(200,152,32,.18);
+    }
+    .ho-pnm { font-size: .78rem; font-weight: 700; color: var(--tx); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ho-php { font-size: .66rem; color: var(--dim); margin-bottom: 5px; }
+    .ho-phpb { height: 5px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+    .ho-phpf { height: 100%; background: var(--hpg); border-radius: 3px; transition: width .5s; }
+    .ho-phpf.lo { background: var(--hpr); }
+    #ho-vs { font-size: .72rem; color: var(--dim2); font-weight: 700; flex-shrink: 0; }
+
+    /* Turn info */
+    #ho-turn {
+      position: relative; z-index: 1;
+      font-size: .68rem; color: var(--dim);
+      margin-bottom: 8px; text-align: center;
+    }
+
+    /* Last action bubble */
+    #ho-last {
+      position: relative; z-index: 1;
+      font-size: .73rem; color: var(--gold2); text-align: center;
+      background: rgba(200,152,32,.09); border: 1px solid rgba(200,152,32,.18);
+      border-radius: 7px; padding: 6px 14px; margin-bottom: 22px;
+      max-width: 300px; width: 100%; min-height: 28px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* Hold-to-unlock button */
+    #hbtn {
+      position: relative; z-index: 1; overflow: hidden;
+      background: rgba(200,152,32,.1);
+      border: 1.5px solid var(--gold); color: var(--gold);
+      border-radius: 50px; padding: 13px 38px;
+      font-size: .92rem; font-weight: 700; cursor: pointer;
+      font-family: inherit; letter-spacing: .04em;
+      user-select: none; -webkit-user-select: none;
+      touch-action: none; transition: color .15s, box-shadow .2s;
+      box-shadow: 0 0 0 rgba(200,152,32,0);
+    }
+    #hbtn::after {
+      content: ''; position: absolute; inset: 0;
+      background: var(--gold);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0s; z-index: 0;
+    }
+    #hbtn span { position: relative; z-index: 1; }
+    #hbtn.holding { color: #030b04; box-shadow: 0 0 18px rgba(200,152,32,.45); }
+    #hbtn.holding::after { transform: scaleX(1); transition: transform 1.6s linear; }
+
+    /* Hint under button */
+    #ho-hint {
+      position: relative; z-index: 1;
+      font-size: .62rem; color: var(--dim);
+      margin-top: 7px; text-align: center;
+    }
+
+    /* ── OVERLAY PANEL (log / rules) ── */
+    .ovpanel {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      z-index: 500
+    }
+
+    .ovpanel.on {
+      display: flex
+    }
+
+    .ov-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 13px;
+      border-bottom: 1px solid var(--dim2);
+      background: #080f08;
+      flex-shrink: 0
+    }
+
+    .ov-hdr span {
+      color: var(--gold2);
+      font-size: .88rem;
+      font-weight: 700
+    }
+
+    .ov-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      font-size: .71rem;
+      background: #060d06
+    }
+
+    /* ── RULES CONTENT ── */
+    .rsec {
+      margin-bottom: 14px
+    }
+
+    .rsec h3 {
+      color: var(--gold);
+      font-size: .8rem;
+      margin-bottom: 5px;
+      border-bottom: 1px solid var(--dim2);
+      padding-bottom: 3px
+    }
+
+    .rsec p,
+    .rsec li {
+      color: var(--tx);
+      line-height: 1.8;
+      font-size: .72rem
+    }
+
+    .rsec ul {
+      padding-right: 14px
+    }
+
+    .rfarm {
+      border: 1px solid var(--dim2);
+      border-radius: 5px;
+      padding: 5px 8px;
+      margin-bottom: 5px
+    }
+
+    .rfarm.weak {
+      border-color: rgba(130, 100, 20, .4);
+      background: rgba(80, 60, 10, .12)
+    }
+
+    .rfarm.strong {
+      border-color: rgba(200, 152, 32, .3);
+      background: rgba(200, 152, 32, .06)
+    }
+
+    .rfarm h4 {
+      font-size: .73rem;
+      font-weight: 700;
+      margin-bottom: 2px
+    }
+
+    .rfarm.weak h4 {
+      color: #bb9930
+    }
+
+    .rfarm.strong h4 {
+      color: var(--gold2)
+    }
+
+    .rfarm p {
+      font-size: .68rem;
+      color: var(--dim);
+      line-height: 1.65
+    }
+
+    .le {
+      padding: 1.5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      line-height: 1.35
+    }
+
+    .le.good {
+      color: #5abb5a
+    }
+
+    .le.bad {
+      color: #ee7766
+    }
+
+    .le.sys {
+      color: var(--gold)
+    }
+
+    .le.info {
+      color: #888
+    }
+
+    /* ── WIN ── */
+    #wscr {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .97);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      z-index: 300
+    }
+
+    #wscr.on {
+      display: flex
+    }
+
+    /* ── SETUP ── */
+    #sscr {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, var(--felt) 0%, var(--bg) 75%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 400;
+      padding: 16px;
+      text-align: center;
+      overflow-y: auto
+    }
+
+    .sc {
+      background: rgba(0, 0, 0, .4);
+      border: 1px solid var(--dim2);
+      border-radius: 7px;
+      padding: 10px 14px;
+      max-width: 360px;
+      width: 100%;
+      text-align: right
+    }
+
+    .sc h3 {
+      color: var(--gold);
+      font-size: .8rem;
+      margin-bottom: 7px;
+      text-align: center
+    }
+
+    .sf {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px
+    }
+
+    .sf label {
+      font-size: .72rem;
+      color: var(--dim);
+      white-space: nowrap;
+      min-width: 88px
+    }
+
+    .sf input[type=text] {
+      background: #050d05;
+      border: 1px solid var(--dim2);
+      color: var(--tx);
+      border-radius: 4px;
+      padding: 3px 7px;
+      font-size: .76rem;
+      flex: 1;
+      font-family: inherit;
+      direction: rtl
+    }
+
+    .sf input[type=text]:focus {
+      outline: none;
+      border-color: var(--gold)
+    }
+
+    .sf input[type=range] {
+      flex: 1;
+      accent-color: var(--gold)
+    }
+
+    .sval {
+      color: var(--gold2);
+      font-weight: 700;
+      font-size: .8rem;
+      min-width: 22px;
+      text-align: center
+    }
+
+    .smodes {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    /* ── AI ── */
+    #aithink {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(26, 56, 136, .9);
+      border: 1px solid #3355aa;
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: .7rem;
+      color: #99bbff;
+      display: none;
+      z-index: 50;
+      animation: pulse 1s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: .7
+      }
+
+      50% {
+        opacity: 1
+      }
+    }
+
+    @media(max-width:480px) {
+      :root {
+        --cw: 40px;
+        --ch: 59px
+      }
+
+      .card {
+        font-size: .58rem
+      }
+
+      .card .cm {
+        font-size: .78rem
+      }
+
+      #ap {
+        min-width: 138px;
+        width: 138px
+      }
+    }
+
+    /* ══════════════════════════════════════
+       VFX — Visual Effects Layer
+    ══════════════════════════════════════ */
+
+    /* Floating damage / heal numbers */
+    .vfx-num {
+      position: fixed;
+      font-size: 1.5rem;
+      font-weight: 700;
+      pointer-events: none;
+      z-index: 999;
+      text-shadow: 0 2px 10px rgba(0,0,0,.85);
+      animation: vfxFloat 1.3s cubic-bezier(.22,.6,.36,1) forwards
+    }
+    @keyframes vfxFloat {
+      0%   { opacity:0; transform:translateY(0) scale(.7) }
+      15%  { opacity:1; transform:translateY(-10px) scale(1.2) }
+      55%  { opacity:1; transform:translateY(-52px) scale(1) }
+      100% { opacity:0; transform:translateY(-90px) scale(.85) }
+    }
+
+    /* Player zone flash — attack (red) */
+    @keyframes vfxZoneAtk {
+      0%,100% { box-shadow:none }
+      25%     { box-shadow:inset 0 0 55px rgba(220,30,10,.55),0 0 30px rgba(220,30,10,.3) }
+    }
+    .vfx-zone-atk { animation:vfxZoneAtk .75s ease-out }
+
+    /* Player zone flash — heal (green) */
+    @keyframes vfxZoneHeal {
+      0%,100% { box-shadow:none }
+      25%     { box-shadow:inset 0 0 55px rgba(30,210,90,.45),0 0 25px rgba(30,210,90,.25) }
+    }
+    .vfx-zone-heal { animation:vfxZoneHeal .75s ease-out }
+
+    /* Farm tile shake (when hit) */
+    @keyframes vfxShake {
+      0%,100% { transform:translateX(0) rotate(0) }
+      20%     { transform:translateX(-6px) rotate(-1.5deg) }
+      40%     { transform:translateX(6px) rotate(1.5deg) }
+      60%     { transform:translateX(-4px) rotate(-.5deg) }
+      80%     { transform:translateX(4px) rotate(.5deg) }
+    }
+    .vfx-shake { animation:vfxShake .5s ease-out }
+
+    /* Farm tile explosion (destroyed) */
+    @keyframes vfxExplode {
+      0%   { transform:scale(1); opacity:1 }
+      35%  { transform:scale(1.18); opacity:.85; background:rgba(220,60,10,.4) }
+      100% { transform:scale(.5); opacity:0 }
+    }
+    .vfx-explode { animation:vfxExplode .55s ease-in forwards; pointer-events:none }
+
+    /* Farm build glow */
+    @keyframes vfxBuild {
+      0%,100% { box-shadow:none }
+      40%     { box-shadow:0 0 20px rgba(200,152,32,.8),inset 0 0 12px rgba(200,152,32,.25) }
+    }
+    .vfx-build { animation:vfxBuild .9s ease-out }
+
+    /* Ace attack — full-screen crimson flash */
+    #vfx-screen {
+      position:fixed;inset:0;
+      background:radial-gradient(ellipse at center,#ff3300 0%,#990000 100%);
+      pointer-events:none;z-index:800;opacity:0;display:none
+    }
+    @keyframes vfxScreen {
+      0%   { opacity:0 }
+      12%  { opacity:.45 }
+      100% { opacity:0 }
+    }
+    #vfx-screen.on { display:block;animation:vfxScreen .9s ease-out forwards }
+
+    /* HP bar pop when it changes */
+    @keyframes vfxHpPop {
+      0%,100% { transform:scaleY(1) }
+      30%     { transform:scaleY(1.45) }
+    }
+    .vfx-hp-pop { animation:vfxHpPop .35s ease-out }
+
+    /* Combo spark overlay on action panel */
+    @keyframes vfxCombo {
+      0%,100% { background:transparent }
+      20%     { background:rgba(200,152,32,.18) }
+    }
+    .vfx-combo-flash { animation:vfxCombo .5s ease-out }
+
+    /* ── CARD SHOWCASE ── */
+    #cshowcase {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 90;
+      cursor: pointer;
+      animation: fadeIn .2s
+    }
+
+    #cshowcase.on {
+      display: flex
+    }
+
+    #cshowcase .cs-title {
+      font-size: .82rem;
+      color: var(--gold2);
+      font-weight: 700
+    }
+
+    #cshowcase .cs-cards {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center
+    }
+
+    #cshowcase .cs-hint {
+      font-size: .6rem;
+      color: var(--dim);
+      margin-top: 6px
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="game">
+    <!-- TOP: Player id=1 -->
+    <div class="pz" id="z1">
+      <div class="phdr">
+        <span class="pnm" id="n1">لاعب 2</span>
+        <span id="t1"></span><span class="aitag" id="ai1" style="display:none">🤖 AI</span>
+        <span class="abg" id="a1">♠ أكة: 6</span>
+        <div class="hpw">
+          <div class="hpl">الحياة</div>
+          <div class="hpb">
+            <div class="hpf" id="hf1" style="width:100%"></div>
+          </div>
+          <div class="hpt" id="ht1">HP: 20/25 | حد: 12</div>
+        </div>
+        <span class="hlbl" id="hl1">يد: 8</span>
+      </div>
+      <div class="frow" id="f1"></div>
+      <div class="ha" id="h1"></div>
+    </div>
+
+    <!-- CENTER -->
+    <div id="center">
+      <!-- Action panel -->
+      <div id="ap">
+        <div id="phb">—</div>
+        <div id="si"></div>
+        <div id="flags"></div>
+        <button class="btn pri" id="bplay">▶ العب البطاقة</button>
+        <button class="btn" id="bdbl">✕2 تدبيل (7+ورقة)</button>
+        <button class="btn" id="bcombo">⚡ كومبو (ورقة+J+ورقة)</button>
+        <button class="btn" id="bfarm">🌾 بناء مزرعة (A+4)</button>
+        <button class="btn" id="bslot">📥 فتح خانة (1 أكة)</button>
+        <button class="btn dan" id="bdestroy">💥 هدم مزرعة</button>
+        <button class="btn dan" id="batk">💥 هجوم A (2 أكة)</button>
+        <button class="btn" id="bpass">⏭ تمرير</button>
+        <hr style="border-color:var(--dim2);margin:1px 0">
+        <button class="btn dan" id="bend">⏹ إنهاء الدور</button>
+        <hr style="border-color:var(--dim2);margin:1px 0">
+        <button class="btn sm info" onclick="showRules()">📖 القوانين</button>
+        <button class="btn sm" onclick="toggleLog()">📋 السجل</button>
+        <button class="btn sm" id="sfx-btn" onclick="SFX.toggle()">🔊 صوت</button>
+        <button class="btn sm dan" onclick="confirmRestart()">🔄 إعادة</button>
+      </div>
+
+      <!-- TABLE -->
+      <div id="tbl">
+        <div class="tbl-pile">
+          <div class="deck-stack">
+            <div class="cbk" style="position:absolute;top:6px;right:6px;opacity:.4;width:var(--cw);height:var(--ch)">🂠
+            </div>
+            <div class="cbk" style="position:absolute;top:3px;right:3px;opacity:.65;width:var(--cw);height:var(--ch)">🂠
+            </div>
+            <div class="cbk" style="position:absolute;top:0;right:0;width:var(--cw);height:var(--ch)">🂠</div>
+          </div>
+          <div class="tbl-cnt" id="dc">32</div>
+          <div class="tbl-lbl" id="dlbl">الدك الأولي</div>
+        </div>
+        <div id="tbl-mid">
+          <div id="tbl-stat">⚔ حرب الاكك</div>
+          <div id="tbl-sub"></div>
+          <div id="turn-ctr"></div>
+          <div id="played-pile"></div>
+        </div>
+        <div class="tbl-pile">
+          <div id="disc-top" style="width:var(--cw);height:var(--ch);border-radius:5px;
+             border:1.5px dashed var(--dim2);display:flex;align-items:center;
+             justify-content:center;font-size:.58rem;color:var(--dim)">فارغ</div>
+          <div class="tbl-cnt" id="dsc">0</div>
+          <div class="tbl-lbl">المرمية</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM: Player id=0 (always human) -->
+    <div class="pz" id="z0">
+      <div class="phdr">
+        <span class="pnm" id="n0">لاعب 1</span>
+        <span id="t0"></span>
+        <span class="abg" id="a0">♠ أكة: 6</span>
+        <div class="hpw">
+          <div class="hpl">الحياة</div>
+          <div class="hpb">
+            <div class="hpf" id="hf0" style="width:100%"></div>
+          </div>
+          <div class="hpt" id="ht0">HP: 20/25 | حد: 12</div>
+        </div>
+        <span class="hlbl" id="hl0">يد: 8</span>
+      </div>
+      <div class="frow" id="f0"></div>
+      <div class="ha" id="h0"></div>
+    </div>
+  </div>
+
+  <div id="aithink">🤖 AI يفكر...</div>
+  <div id="vfx-screen"></div>
+
+  <!-- MODAL -->
+  <div id="mov">
+    <div id="mbox">
+      <div class="mt" id="mtit">—</div>
+      <div class="mb" id="mbod">—</div>
+      <div class="mbs" id="mbtns"></div>
+    </div>
+  </div>
+
+  <!-- HANDOFF -->
+  <div id="hoff">
+    <div style="font-size:2.4rem">🔒</div>
+    <div id="hott">—</div>
+    <div id="hots">—</div>
+    <button class="btn pri" id="hbtn" style="font-size:.86rem;padding:9px 22px;width:auto">✅ أنا جاهز</button>
+  </div>
+
+  <!-- CARD SHOWCASE -->
+  <div id="cshowcase">
+    <div class="cs-title" id="cs-title"></div>
+    <div class="cs-cards" id="cs-cards"></div>
+    <button class="btn pri" style="margin-top:15px; width:auto; padding:6px 20px; font-size:.8rem"
+      onclick="hideShowcase()">متابعة</button>
+  </div>
+
+  <!-- WIN -->
+  <div id="wscr">
+    <div style="font-size:2.6rem">🏆</div>
+    <div style="font-size:1.75rem;color:var(--gold2);font-weight:700" id="wtit">—</div>
+    <div style="font-size:.86rem;color:var(--tx)" id="wsub">—</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px">
+      <button class="btn pri" style="font-size:.86rem;padding:9px 20px;width:auto" onclick="goSetup()">⚙ إعداد
+        جديد</button>
+      <button class="btn" style="font-size:.86rem;padding:9px 20px;width:auto" onclick="quickRestart()">⚡ نفس
+        الإعدادات</button>
+    </div>
+  </div>
+
+  <!-- LOG PANEL -->
+  <div class="ovpanel" id="logpanel">
+    <div class="ov-hdr">
+      <span>📋 سجل الحركات</span>
+      <button class="btn sm" onclick="toggleLog()">✕ إغلاق</button>
+    </div>
+    <div class="ov-body" id="logcont"></div>
+  </div>
+
+  <!-- RULES PANEL -->
+  <div class="ovpanel" id="rulespanel">
+    <div class="ov-hdr">
+      <span>📖 قوانين حرب الاكك</span>
+      <button class="btn sm" onclick="closeRules()">✕ إغلاق</button>
+    </div>
+    <div class="ov-body">
+
+      <div class="rsec">
+        <h3>🎯 هدف اللعبة</h3>
+        <p>أسقط حياة خصمك إلى صفر!</p>
+      </div>
+
+      <div class="rsec">
+        <h3>⚙ الإعداد</h3>
+        <ul>
+          <li>32 ورقة: 7 8 9 10 J Q K A × 4 أشكال (♠♥♦♣)</li>
+          <li>كل لاعب يبدأ بـ 7 أوراق + 20 حياة (أقصى 25)</li>
+          <li>نقاط الأكة: تُحدَّد في الإعداد (افتراضي 6) — متساوية لكلا اللاعبين</li>
+          <li>حد اليد: 12 ورقة (يمكن فتح خانات حتى 16)</li>
+
+          <li>إعادة السحب: مسموح مرة واحدة فقط للكل</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>🔄 ترتيب الدور</h3>
+        <ul>
+          <li><b>1.</b> تفعيل تأثيرات مزارعك</li>
+          <li><b>2.</b> سحب ورقة (إذا كانت يدك غير ممتلئة)</li>
+          <li><b>3.</b> مرحلة اللعب: نفّذ حركة واحدة أو تمرّر</li>
+          <li><b>4.</b> أنهِ دورك</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>🃏 قيم البطاقات</h3>
+        <ul>
+          <li><b>10</b> → دمج 1 | <b>9</b> → هيل 1</li>
+          <li><b>K (شايب)</b> → دمج 2 | <b>Q (بنت)</b> → هيل 2</li>
+          <li><b>8</b> → دمج 1 أو هيل 1 (اختياري)</li>
+          <li><b>J (ولد)</b> → دمج 2 أو هيل 2 (وحده) أو مُفعِّل الكومبو</li>
+          <li><b>7</b> → التدبيل: يضاعف تأثير ورقة أخرى</li>
+          <li><b>A (أكة)</b> → هجوم خاص (مرة واحدة طوال القيم)</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>⚡ الحركات الخاصة</h3>
+        <ul>
+          <li><b>التدبيل:</b> 7 + ورقة → يضاعف تأثيرها (لا يعمل مع J أو A)</li>
+          <li><b>الكومبو:</b> ورقة + J + ورقة → تأثير البطاقتين مُجمَّع (J مُفعِّل فقط)</li>
+          <li><b>هجوم A:</b> أحرق A + 2 أكة → دمج 5 على الخصم أو فارم قوي (مرة واحدة فقط طوال القيم!)</li>
+          <li><b>فتح خانة يد:</b> 1 أكة → يرفع حد اليد بـ +1 (حتى 16)</li>
+          <li><b>التمرير:</b> تتخطى حركتك لهذا الدور</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>🛡 الدفاع</h3>
+        <ul>
+          <li>عند تعرّضك لهجوم مباشر: ادفع 2 أكة لإلغاء الهجوم</li>
+          <li><b style="color:#ffaa66">الدفاع مسموح مرة واحدة فقط طوال القيم!</b></li>
+          <li>لا يمكن الدفاع ضد الهجوم على المزارع</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>🌾 المزارع — الضعيفة (5 HP، 2 أكة) — <span style="color:#bb9930">محمية لمدة جولتين ثم K/10 فقط</span></h3>
+        <p style="color:var(--gold);font-size:.7rem;margin-bottom:6px"><b>قانون هام:</b> يُسمح لك بامتلاك <b>مزرعة سحب
+            واحدة</b> فقط، و<b>مزرعة قتال (دمج/هيل/هجين) واحدة</b> فقط في نفس الوقت.</p>
+
+        <div class="rfarm weak">
+          <h4>مزرعة السحب العادية</h4>
+          <p>المكوّنات: A + أي 4 من {7، 8، 9، 10} — لا يشترط نفس الشكل<br>
+            التأثير: تسحب <b>بطاقة إضافية</b> في بداية كل دور (المجموع: 2)</p>
+        </div>
+
+        <div class="rfarm weak">
+          <h4>مزرعة الهجين</h4>
+          <p>المكوّنات: A + 2 شايب (K) + 2 بنت (Q) — لا يشترط نفس الشكل<br>
+            التأثير: دمج 2 + هيل 2 في بداية كل دور (اختياري: دمج على الخصم أو هيل لك)</p>
+        </div>
+      </div>
+
+      <div class="rsec">
+        <h3>🌾 المزارع — القوية (8 HP) — <span style="color:var(--gold2)">يمكن مهاجمتها بالأوراق</span></h3>
+
+        <div class="rfarm strong">
+          <h4>مزرعة الدمج القوي ⭐ — 3 أكة</h4>
+          <p>المكوّنات: A + 4 شايب (K) — لا يشترط نفس الشكل<br>
+            التأثير: دمج 4 على الخصم في بداية كل دور</p>
+        </div>
+
+        <div class="rfarm strong">
+          <h4>مزرعة الهيل القوي ⭐ — 3 أكة</h4>
+          <p>المكوّنات: A + 4 بنت (Q) — لا يشترط نفس الشكل<br>
+            التأثير: هيل 4 لك في بداية كل دور</p>
+        </div>
+
+        <div class="rfarm strong">
+          <h4>مزرعة الأولاد ⭐ — 4 أكة</h4>
+          <p>المكوّنات: A + 4 ولد (J) — لا يشترط نفس الشكل<br>
+            التأثير: 4 دمج أو 4 هيل — تختار في بداية كل دور</p>
+        </div>
+
+        <div class="rfarm strong">
+          <h4>مزرعة السحب الثنائي ⭐ — 3 أكة</h4>
+          <p>المكوّنات: A + 7 + 8 + 9 + 10 من <b>نفس الشكل</b><br>
+            التأثير: تسحب <b>بطاقتين إضافيتين</b> في بداية كل دور (المجموع: 3)</p>
+        </div>
+      </div>
+
+      <div class="rsec">
+        <h3>⚔ الهجوم على المزارع</h3>
+        <ul>
+          <li>المزارع <b>القوية</b>: يمكن توجيه أي هجوم (أوراق، كومبو، تدبيل) عليها</li>
+          <li>المزارع <b>الضعيفة</b>: محمية لمدة <b>جولتين</b> بعد البناء، ثم يمكن مهاجمتها بـ <b>K أو 10 فقط</b>
+            (مباشرة أو كومبو/تدبيل)</li>
+          <li>المزارع الضعيفة <b>لا يمكن مهاجمتها بهجوم A أبداً</b></li>
+          <li>عند تدمير مزرعة: يُحرق 1 أكة من المهاجم (تكلفة الضربة القاضية)</li>
+          <li>بطاقات الفارم المدمَّر تذهب للمرمية</li>
+        </ul>
+      </div>
+
+      <div class="rsec">
+        <h3>📋 ملاحظات إضافية</h3>
+        <ul>
+          <li>لا يمكن بناء المزارع إلا بعد <b>انتهاء ورق السحب (الديك)</b></li>
+          <li>المزارع لا تُبنى في الدورتين الأوليين (سريعتان)</li>
+          <li>السحب يتوقف تلقائياً إذا كانت يدك ممتلئة</li>
+          <li>إذا لعبت J أو 7 في الكومبو أو التدبيل ثم ألغيت — لا تُحسب الحركة</li>
+          <li>فارم مزرعة الهجين: تأثيرها كلٌّ من دمج 2 وهيل 2 في كل دور (الخيار في بداية كل دور)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div id="sscr">
+    <div style="font-size:1.85rem;color:var(--gold);font-weight:700">⚔ حرب الاكك</div>
+    <div style="font-size:.82rem;color:var(--gold)">Aces War v2 — بقلم Qai9rr</div>
+
+    <div class="sc">
+      <h3>👤 أسماء اللاعبين</h3>
+      <div class="sf">
+        <label>لاعب 1:</label>
+        <input type="text" id="p1name" value="لاعب 1" maxlength="16">
+      </div>
+      <div class="sf">
+        <label>لاعب 2 / AI:</label>
+        <input type="text" id="p2name" value="لاعب 2" maxlength="16">
+      </div>
+    </div>
+
+    <div class="sc">
+      <h3>⚙ إعدادات اللعبة</h3>
+      <div class="sf">
+        <label>نقاط أكة ابتدائية:</label>
+        <input type="range" id="aceSlider" min="2" max="20" value="6" oninput="$i('aceVal').textContent=this.value">
+        <span class="sval" id="aceVal">6</span>
+      </div>
+      <div style="font-size:.62rem;color:var(--dim);text-align:center;margin-top:2px">
+        حياة: 20 (أقصى 25) | 7 أوراق | حد يد: 12–16
+      </div>
+    </div>
+
+    <div class="smodes">
+      <button class="btn pri" id="s2p" style="font-size:.88rem;padding:9px 18px;width:auto">
+        👥 لاعبان (Hot-seat)
+      </button>
+      <button class="btn" id="sai"
+        style="font-size:.88rem;padding:9px 18px;width:auto;border-color:#2255aa;color:#99bbff">
+        🤖 ضد الذكاء الاصطناعي
+      </button>
+      <button class="btn info" style="font-size:.88rem;padding:9px 18px;width:auto"
+        onclick="document.getElementById('rulespanel').classList.add('on')">
+        📖 القوانين
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /* ═══════════════════════════════════════════════════════════════
+       VFX ENGINE — visual effects layer
+    ═══════════════════════════════════════════════════════════════ */
+    const VFX = {
+      /* Float a ±number from a player zone */
+      num(pid, text, color) {
+        const zone = document.getElementById(`z${pid}`);
+        if (!zone) return;
+        const rect = zone.getBoundingClientRect();
+        const el = document.createElement('div');
+        el.className = 'vfx-num';
+        el.textContent = text;
+        el.style.cssText = `color:${color};left:${rect.left + rect.width / 2 - 28}px;top:${rect.top + 4}px`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1400);
+      },
+
+      /* Flash a player zone red or green */
+      zone(pid, type) {
+        const el = document.getElementById(`z${pid}`);
+        if (!el) return;
+        const cls = type === 'atk' ? 'vfx-zone-atk' : 'vfx-zone-heal';
+        el.classList.remove('vfx-zone-atk', 'vfx-zone-heal');
+        void el.offsetWidth;
+        el.classList.add(cls);
+        setTimeout(() => el.classList.remove(cls), 800);
+      },
+
+      /* HP bar pop animation */
+      hpPop(pid) {
+        const bar = document.getElementById(`hf${pid}`);
+        if (!bar) return;
+        bar.classList.remove('vfx-hp-pop');
+        void bar.offsetWidth;
+        bar.classList.add('vfx-hp-pop');
+        setTimeout(() => bar.classList.remove('vfx-hp-pop'), 400);
+      },
+
+      /* Shake a farm tile (hit) */
+      shakeFarm(pid, farmLbl) {
+        const fe = document.getElementById(`f${pid}`);
+        if (!fe) return;
+        for (const tile of fe.children) {
+          if (tile.textContent.includes(farmLbl.replace(' ⭐', ''))) {
+            tile.classList.remove('vfx-shake');
+            void tile.offsetWidth;
+            tile.classList.add('vfx-shake');
+            setTimeout(() => tile.classList.remove('vfx-shake'), 550);
+            break;
+          }
+        }
+      },
+
+      /* Explode a farm tile (destroyed) */
+      explodeFarm(pid, farmLbl) {
+        const fe = document.getElementById(`f${pid}`);
+        if (!fe) return;
+        for (const tile of fe.children) {
+          if (tile.textContent.includes(farmLbl.replace(' ⭐', ''))) {
+            tile.classList.add('vfx-explode');
+            break;
+          }
+        }
+      },
+
+      /* Glow a newly built farm (called after render) */
+      buildFarm(pid, farmLbl) {
+        setTimeout(() => {
+          const fe = document.getElementById(`f${pid}`);
+          if (!fe) return;
+          for (const tile of fe.children) {
+            if (tile.textContent.includes(farmLbl.replace(' ⭐', ''))) {
+              tile.classList.add('vfx-build');
+              setTimeout(() => tile.classList.remove('vfx-build'), 1000);
+              break;
+            }
+          }
+        }, 60);
+      },
+
+      /* Full-screen crimson flash (ace attack) */
+      screenFlash() {
+        const el = document.getElementById('vfx-screen');
+        if (!el) return;
+        el.classList.remove('on');
+        void el.offsetWidth;
+        el.classList.add('on');
+        setTimeout(() => el.classList.remove('on'), 1000);
+      },
+
+      /* Flash action panel for combos */
+      comboFlash() {
+        const ap = document.getElementById('ap');
+        if (!ap) return;
+        ap.classList.remove('vfx-combo-flash');
+        void ap.offsetWidth;
+        ap.classList.add('vfx-combo-flash');
+        setTimeout(() => ap.classList.remove('vfx-combo-flash'), 550);
+      }
+    };
+
+    /* ═══════════════════════════════════════════════════════════════
+       SFX ENGINE — Web Audio API, zero external files
+       All sounds are synthesized on the fly using oscillators + noise.
+    ═══════════════════════════════════════════════════════════════ */
+    const SFX = {
+      _ctx: null, _muted: false, _vol: 0.72,
+
+      /* Lazy-init AudioContext (must be after user gesture) */
+      _go() {
+        if (this._muted) return null;
+        if (!this._ctx) {
+          try { this._ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+          catch (e) { return null; }
+        }
+        if (this._ctx.state === 'suspended') this._ctx.resume();
+        return this._ctx;
+      },
+
+      /* White-noise buffer helper */
+      _noise(ctx, dur) {
+        const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        return buf;
+      },
+
+      /* Mute / unmute toggle */
+      toggle() {
+        this._muted = !this._muted;
+        const btn = document.getElementById('sfx-btn');
+        if (btn) btn.textContent = this._muted ? '🔇 صوت' : '🔊 صوت';
+        try { localStorage.setItem('acesWarMute', this._muted ? '1' : ''); } catch (e) {}
+      },
+
+      /* ── CARD PLAY — soft paper thwack ── */
+      cardPlay() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        const ns = ctx.createBufferSource();
+        ns.buffer = this._noise(ctx, 0.07);
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1200;
+        const g = ctx.createGain(); const t = ctx.currentTime;
+        g.gain.setValueAtTime(v * 0.45, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+        ns.connect(hp); hp.connect(g); g.connect(ctx.destination); ns.start(t);
+      },
+
+      /* ── CARD DRAW — quick whoosh ── */
+      draw() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        const osc = ctx.createOscillator(); osc.type = 'sine';
+        osc.frequency.setValueAtTime(900, t);
+        osc.frequency.exponentialRampToValueAtTime(220, t + 0.11);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(v * 0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.13);
+        osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.15);
+      },
+
+      /* ── ATTACK / DAMAGE — punchy thud, scales with amount ── */
+      attack(amount = 1) {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        const base = 75 + Math.min(amount, 5) * 10;
+        // Low sine punch
+        const osc = ctx.createOscillator(); osc.type = 'sine';
+        osc.frequency.setValueAtTime(base * 2.2, t);
+        osc.frequency.exponentialRampToValueAtTime(base, t + 0.13);
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(v * 0.75, t);
+        og.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+        osc.connect(og); og.connect(ctx.destination); osc.start(t); osc.stop(t + 0.3);
+        // Crunch noise
+        const ns = ctx.createBufferSource();
+        ns.buffer = this._noise(ctx, 0.04);
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 600;
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(v * 0.32, t);
+        ng.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        ns.connect(lp); lp.connect(ng); ng.connect(ctx.destination); ns.start(t);
+      },
+
+      /* ── HEAL — bright rising chime chord ── */
+      heal(amount = 1) {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [523, 659, 784, 1047].slice(0, Math.min(Math.ceil(amount / 1.5) + 1, 4)).forEach((freq, i) => {
+          const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
+          const g = ctx.createGain(); const t = ctx.currentTime + i * 0.065;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(v * 0.32, t + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+          osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.55);
+        });
+      },
+
+      /* ── DOUBLE (تدبيل) — two quick thumps ── */
+      double() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [0, 0.1].forEach(delay => {
+          const osc = ctx.createOscillator(); osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, ctx.currentTime + delay);
+          osc.frequency.exponentialRampToValueAtTime(70, ctx.currentTime + delay + 0.11);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(v * 0.6, ctx.currentTime + delay);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.13);
+          osc.connect(g); g.connect(ctx.destination);
+          osc.start(ctx.currentTime + delay); osc.stop(ctx.currentTime + delay + 0.15);
+        });
+      },
+
+      /* ── COMBO — fast 3-note ascending arpeggio ── */
+      combo() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [330, 494, 740].forEach((freq, i) => {
+          const osc = ctx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = freq;
+          const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 2200;
+          const g = ctx.createGain(); const t = ctx.currentTime + i * 0.06;
+          g.gain.setValueAtTime(v * 0.28, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+          osc.connect(flt); flt.connect(g); g.connect(ctx.destination);
+          osc.start(t); osc.stop(t + 0.22);
+        });
+      },
+
+      /* ── FARM BUILD — ascending shimmer chord ── */
+      farmBuild() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [261, 329, 392, 523, 784].forEach((freq, i) => {
+          const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
+          const g = ctx.createGain(); const t = ctx.currentTime + i * 0.09;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(v * 0.27, t + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.75);
+          osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.8);
+        });
+      },
+
+      /* ── FARM HIT — wooden thud ── */
+      farmHit() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        const osc = ctx.createOscillator(); osc.type = 'sine';
+        osc.frequency.setValueAtTime(200, t);
+        osc.frequency.exponentialRampToValueAtTime(55, t + 0.18);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(v * 0.55, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.25);
+      },
+
+      /* ── FARM DESTROY — explosion boom + noise ── */
+      farmDestroy() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        // Deep boom
+        const osc = ctx.createOscillator(); osc.type = 'sine';
+        osc.frequency.setValueAtTime(100, t);
+        osc.frequency.exponentialRampToValueAtTime(22, t + 0.7);
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(v * 0.8, t);
+        og.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+        osc.connect(og); og.connect(ctx.destination); osc.start(t); osc.stop(t + 0.75);
+        // Noise burst
+        const ns = ctx.createBufferSource(); ns.buffer = this._noise(ctx, 0.55);
+        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(v * 0.55, t);
+        ng.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+        ns.connect(lp); lp.connect(ng); ng.connect(ctx.destination); ns.start(t);
+        // Mid crackle (brief)
+        const ns2 = ctx.createBufferSource(); ns2.buffer = this._noise(ctx, 0.08);
+        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 1500;
+        const ng2 = ctx.createGain();
+        ng2.gain.setValueAtTime(v * 0.35, t);
+        ng2.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+        ns2.connect(hp); hp.connect(ng2); ng2.connect(ctx.destination); ns2.start(t);
+      },
+
+      /* ── ACE ATTACK — dramatic screech-into-boom ── */
+      aceAttack() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        // High pitch screech diving down
+        const osc = ctx.createOscillator(); osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(1100, t);
+        osc.frequency.exponentialRampToValueAtTime(110, t + 0.45);
+        const flt = ctx.createBiquadFilter(); flt.type = 'lowpass'; flt.frequency.value = 3500;
+        const og = ctx.createGain();
+        og.gain.setValueAtTime(v * 0.5, t);
+        og.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc.connect(flt); flt.connect(og); og.connect(ctx.destination); osc.start(t); osc.stop(t + 0.55);
+        // Delayed deep boom
+        const osc2 = ctx.createOscillator(); osc2.type = 'sine'; osc2.frequency.value = 50;
+        osc2.frequency.exponentialRampToValueAtTime(22, t + 0.85);
+        const og2 = ctx.createGain();
+        og2.gain.setValueAtTime(0, t + 0.08);
+        og2.gain.linearRampToValueAtTime(v * 0.9, t + 0.12);
+        og2.gain.exponentialRampToValueAtTime(0.001, t + 0.85);
+        osc2.connect(og2); og2.connect(ctx.destination); osc2.start(t + 0.08); osc2.stop(t + 0.9);
+        // Impact noise
+        const ns = ctx.createBufferSource(); ns.buffer = this._noise(ctx, 0.35);
+        const ng = ctx.createGain();
+        ng.gain.setValueAtTime(v * 0.6, t + 0.1);
+        ng.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+        ns.connect(ng); ng.connect(ctx.destination); ns.start(t + 0.1);
+      },
+
+      /* ── DEFENSE — metallic shield clang ── */
+      defense() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [550, 825, 440].forEach((freq, i) => {
+          const osc = ctx.createOscillator(); osc.type = 'triangle';
+          const t = ctx.currentTime + i * 0.025;
+          osc.frequency.setValueAtTime(freq, t);
+          osc.frequency.exponentialRampToValueAtTime(freq * 0.45, t + 0.55);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(v * 0.38, t);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+          osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.65);
+        });
+      },
+
+      /* ── TURN START — soft bell ── */
+      turnStart() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol; const t = ctx.currentTime;
+        const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = 660;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(v * 0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.55);
+        osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.6);
+      },
+
+      /* ── WIN — triumphant 4-note fanfare ── */
+      win() {
+        const ctx = this._go(); if (!ctx) return;
+        const v = this._vol;
+        [523, 659, 784, 523 * 2].forEach((freq, i) => {
+          const osc = ctx.createOscillator(); osc.type = 'triangle'; osc.frequency.value = freq;
+          const g = ctx.createGain(); const t = ctx.currentTime + i * 0.15;
+          g.gain.setValueAtTime(0, t);
+          g.gain.linearRampToValueAtTime(v * 0.42, t + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+          osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.85);
+        });
+      },
+    };
+
+    /* Restore mute state from localStorage */
+    try { if (localStorage.getItem('acesWarMute') === '1') { SFX._muted = true; const b = document.getElementById('sfx-btn'); if (b) b.textContent = '🔇 صوت'; } } catch (e) {}
+
+    /* ═══════════════════════════════════════════════════════════════
+       FARM DEFINITIONS
+       weak  → hp:5, cost:2, strong:false (cannot be attacked)
+       strong→ hp:8, cost:3-4, strong:true  (can be attacked)
+    ═══════════════════════════════════════════════════════════════ */
+    const FD = {
+      // WEAK (5HP, 2 ace)
+      DRAW: {
+        lbl: 'مزرعة سحب', eff: 'draw', val: 1, hp: 5, cost: 2, strong: false,
+        recipe: 'A + أي 4 من {7،8،9،10}'
+      },
+      HYBRID: {
+        lbl: 'مزرعة هجين', eff: 'mh', val: 2, hp: 5, cost: 2, strong: false,
+        recipe: 'A + 2K + 2Q'
+      },
+      // STRONG (8HP, 3-4 ace)
+      MERGE4: {
+        lbl: 'مزرعة الدمج', eff: 'merge', val: 4, hp: 8, cost: 3, strong: true,
+        recipe: 'A + 4K'
+      },
+      HEAL4: {
+        lbl: 'مزرعة الهيل', eff: 'heal', val: 4, hp: 8, cost: 3, strong: true,
+        recipe: 'A + 4Q'
+      },
+      BOYS: {
+        lbl: 'مزرعة الأولاد', eff: 'choice', val: 4, hp: 8, cost: 4, strong: true,
+        recipe: 'A + 4J'
+      },
+      DRAW2: {
+        lbl: 'مزرعة سحب ثنائي', eff: 'draw', val: 2, hp: 8, cost: 3, strong: true,
+        recipe: 'A + 7+8+9+10 نفس الشكل'
+      },
+    };
+
+    const VALS = ['7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+    const SUITS = ['♠', '♥', '♦', '♣'];
+    const RED = new Set(['♥', '♦']);
+    const MAX_HP = 25, START_HP = 20;
+    const BASE_LIM = 12, MAX_LIM = 16;
+    const FAST = 2;
+
+    let G = {};
+
+    /* ═══════════════════════════════════════════════════════════════
+       PLAYER FACTORY
+    ═══════════════════════════════════════════════════════════════ */
+    function mkPlayer(id, isAI, name, startAce) {
+      return {
+        id, name, isAI,
+        hp: START_HP, acePoints: startAce,
+        hand: [], farms: [],
+        handLim: BASE_LIM, turnsDone: 0, hasRedrawn: false,
+        actDone: false, comboUsed: false,   // reset each turn
+        defUsed: false, aceAtkUsed: false,  // ONCE per entire game
+      };
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       DECK
+    ═══════════════════════════════════════════════════════════════ */
+    function mkDeck() {
+      const d = []; let n = 0;
+      for (const v of VALS) for (const s of SUITS) d.push({ v, s, id: `${v}${s}${n++}` });
+      return shuf(d);
+    }
+    function shuf(a) {
+      for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; }
+      return a;
+    }
+    function drawCapped(n, p) {
+      const space = p.handLim - p.hand.length;
+      if (space <= 0) { addLog(`📭 ${p.name}: يدك ممتلئة (${p.hand.length}/${p.handLim})`, 'info'); return []; }
+      const out = [];
+      for (let i = 0; i < Math.min(n, space); i++) {
+        if (!G.deck.length) {
+          if (G.disc.length) {
+            G.deck = shuf([...G.disc]); G.disc = [];
+            G.initialDeckFinished = true;
+            G.deckCount++;
+            addLog(`🔀 خلط المرمية في الديك (الدك ${G.deckCount})`, 'sys');
+          }
+          else { addLog('⚠ الديك فارغ!', 'bad'); break; }
+        }
+        out.push(G.deck.pop());
+      }
+      return out;
+    }
+    function dealN(n) { const o = []; for (let i = 0; i < n; i++) { if (G.deck.length) o.push(G.deck.pop()); } return o; }
+    function toDisc(cards) { for (const c of cards) G.disc.push(c); renderTable(); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOG
+    ═══════════════════════════════════════════════════════════════ */
+    function addLog(msg, type = 'info') {
+      const el = $i('logcont'); if (!el) return;
+      const d = document.createElement('div');
+      d.className = `le ${type}`; d.textContent = msg;
+      el.insertBefore(d, el.firstChild);
+      while (el.children.length > 90) el.removeChild(el.lastChild);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       HELPERS
+    ═══════════════════════════════════════════════════════════════ */
+    const cp = () => G.players[G.cur];
+    const op = () => G.players[1 - G.cur];
+    function modHp(p, d) {
+      p.hp = Math.max(0, Math.min(MAX_HP, p.hp + d));
+      if (d < 0) {
+        VFX.num(p.id, `⚔ ${Math.abs(d)}`, '#ff4422');
+        VFX.zone(p.id, 'atk');
+        VFX.hpPop(p.id);
+        SFX.attack(Math.abs(d));
+      } else if (d > 0) {
+        VFX.num(p.id, `💚 +${d}`, '#33ee77');
+        VFX.zone(p.id, 'heal');
+        VFX.hpPop(p.id);
+        SFX.heal(d);
+      }
+    }
+    function rmHand(p, ids) { const s = new Set(ids); p.hand = p.hand.filter(c => !s.has(c.id)); }
+    function mVal(c) { return { K: 2, J: 2, '10': 1, '8': 1 }[c.v] || 0; }
+    function hVal(c) { return { Q: 2, J: 2, '9': 1, '8': 1 }[c.v] || 0; }
+    function effStr(eff, val) {
+      return {
+        draw: `+${val}سحب`, merge: `⚔${val}/دور`, heal: `💚${val}/دور`,
+        choice: `⚔/💚 ${val}`, mh: `⚔${val}+💚${val}/دور`
+      }[eff] || eff;
+    }
+    const isAITurn = () => G.gameMode === 'ai' && G.cur === 1;
+    const selCards = () => G.phase === 'game' ? cp().hand.filter(c => G.sel.includes(c.id)) : [];
+    const attackable = f => f && f.type && FD[f.type] && f.hp > 0;
+    function canAtkFarm(f, cards, isAceAtk) {
+      if (!attackable(f)) return false;
+      const def = FD[f.type];
+      if (def.strong) return true;
+      if (isAceAtk) return false;
+      if (G.totalTurns - f.builtOnTurn < 4) return false;
+      return cards.some(c => c.v === 'K' || c.v === '10');
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FARM DETECTION — strict per spec
+    ═══════════════════════════════════════════════════════════════ */
+    function detectFarm(cards) {
+      const as = cards.filter(c => c.v === 'A');
+      if (as.length !== 1) return null;
+      const rest = cards.filter(c => c.v !== 'A');
+      if (rest.length !== 4) return null;
+      const vs = rest.map(c => c.v), ss = rest.map(c => c.s);
+
+      // BOYS: A + 4J (any suit)
+      if (vs.every(v => v === 'J')) return 'BOYS';
+      // MERGE4: A + 4K (any suit)
+      if (vs.every(v => v === 'K')) return 'MERGE4';
+      // HEAL4: A + 4Q (any suit)
+      if (vs.every(v => v === 'Q')) return 'HEAL4';
+      // HYBRID: A + 2K + 2Q (any suit)
+      if (vs.filter(v => v === 'K').length === 2 && vs.filter(v => v === 'Q').length === 2) return 'HYBRID';
+      // DRAW2: A + 7+8+9+10 SAME SUIT
+      const s7 = new Set(['7', '8', '9', '10']);
+      if (vs.every(v => s7.has(v)) && new Set(vs).size === 4 && ss.every(s => s === ss[0])) return 'DRAW2';
+      // DRAW: A + any 4 of {7,8,9,10} (no suit restriction)
+      if (vs.every(v => s7.has(v))) return 'DRAW';
+      return null;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       INIT
+    ═══════════════════════════════════════════════════════════════ */
+    function initGame(mode) {
+      const p1n = $i('p1name').value.trim() || 'لاعب 1';
+      const p2n = mode === 'ai' ? ($i('p2name').value.trim() || 'AI') : ($i('p2name').value.trim() || 'لاعب 2');
+      const startAce = parseInt($i('aceSlider').value) || 6;
+      G = {
+        deck: mkDeck(), disc: [],
+        players: [mkPlayer(0, false, p1n, startAce), mkPlayer(1, mode === 'ai', p2n, startAce)],
+        cur: 0, gameMode: mode, startAce, phase: 'redraw', sp: '', sel: [], totalTurns: 0,
+        initialDeckFinished: false, deckCount: 1
+      };
+      $i('ai1').style.display = (mode === 'ai') ? 'inline' : 'none';
+      $i('logcont').innerHTML = '';
+      addLog('⚔ تم توزيع البطاقات!', 'sys');
+      for (const p of G.players) {
+        p.hand = dealN(7);
+      }
+      render(); setTbl('⚔ حرب الاكك', 'اللعبة بدأت!');
+      ho('🃏 ' + G.players[0].name + ': راجع يدك', 'الشاشة محمية — الخصم لا يرى يدك', () => showRedraw(0));
+    }
+    function quickRestart() { $i('wscr').classList.remove('on'); initGame(G.gameMode); }
+    function goSetup() { $i('wscr').classList.remove('on'); $i('sscr').style.display = 'flex'; }
+    function confirmRestart() {
+      showModal('إعادة اللعبة؟', 'سيتم إنهاء الجيم الحالي.', [
+        { lbl: '⚡ نفس الإعدادات', fn() { closeModal(); quickRestart(); } },
+        { lbl: '⚙ الإعداد', fn() { closeModal(); goSetup(); } },
+        { lbl: '❌ إلغاء', fn: closeModal },
+      ]);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       REDRAW
+    ═══════════════════════════════════════════════════════════════ */
+    function showRedraw(pid) {
+      const p = G.players[pid]; G.cur = pid; G.phase = 'redraw';
+      renderHands(); renderStats(); renderBtns();
+      const cardsHtml = p.hand.map(c => cardHtml(c)).join('');
+      showModal(
+        `${p.name}: هل تعيد السحب؟`,
+        `<div style="margin:6px 0">يدك (${p.hand.length} أوراق):</div><div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:8px 0">${cardsHtml}</div><div style="font-size:.65rem;color:var(--dim);margin-top:6px">⚠ الإعادة مسموحة مرة واحدة فقط. | نقاط الأكة: ${p.acePoints}</div>`,
+        [
+          { lbl: '✅ أحتفظ بيدي', fn() { closeModal(); p.hasRedrawn = true; doNextRedraw(pid); } },
+          {
+            lbl: '🔄 إعادة السحب', fn() {
+              closeModal();
+              G.deck.push(...p.hand); p.hand = []; G.deck = shuf(G.deck);
+              p.hand = dealN(7); p.acePoints = G.startAce;
+              p.hasRedrawn = true; addLog(`${p.name}: أعاد السحب`, 'sys'); doNextRedraw(pid);
+            }
+          },
+        ], true
+      );
+    }
+    function doNextRedraw(pid) {
+      if (pid === 0) {
+        if (G.gameMode === 'ai') { G.players[1].hasRedrawn = true; addLog('🤖 AI احتفظ بيده', 'info'); startGame(); }
+        else ho('🃏 ' + G.players[1].name + ': راجع يدك', 'الشاشة محمية', () => showRedraw(1));
+      } else startGame();
+    }
+    function startGame() {
+      G.phase = 'game'; G.cur = 0; addLog('🎮 اللعبة بدأت!', 'sys');
+      ho('⚔ دور ' + G.players[0].name, 'سلّم الجهاز للاعب', beginTurn);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TURN FLOW
+    ═══════════════════════════════════════════════════════════════ */
+    function beginTurn() {
+      const p = cp();
+      p.actDone = false; p.comboUsed = false;
+      G.sel = []; G.totalTurns++;
+      addLog(`─── دور ${p.name} #${p.turnsDone + 1} ─── (جولة ${Math.ceil(G.totalTurns / 2)})`, 'sys');
+      setTbl(`دور ${p.name}`, '');
+      renderStats(); renderBtns();
+      if (isAITurn()) { aiShow(true); setTimeout(farmPhase, 400); }
+      else farmPhase();
+    }
+
+    function farmPhase() {
+      G.sp = 'farm';
+      const boys = cp().farms.filter(f => f.eff === 'choice' && f.hp > 0);
+      boys.length ? askBoys(boys, 0, applyRestFarms) : applyRestFarms();
+    }
+    function askBoys(farms, i, done) {
+      if (i >= farms.length) { done(); return; }
+      const f = farms[i];
+      if (isAITurn()) {
+        if (cp().hp < 10) { modHp(cp(), f.val); addLog(`🌾 AI ${f.lbl}: هيل ${f.val}`, 'good'); }
+        else { modHp(op(), -f.val); addLog(`🌾 AI ${f.lbl}: دمج ${f.val}`, 'bad'); if (checkWin()) return; }
+        askBoys(farms, i + 1, done); return;
+      }
+      showModal(`${f.lbl} — اختر التأثير`, `مزرعتك نشطة! تُعطي ${f.val} نقطة:\nاختر هدفها:`, [
+        {
+          lbl: `⚔ دمج ${f.val} على ${op().name}`, fn() {
+            closeModal(); modHp(op(), -f.val); addLog(`🌾 ${f.lbl}: دمج ${f.val}`, 'bad');
+            if (checkWin()) return; askBoys(farms, i + 1, done);
+          }
+        },
+        {
+          lbl: `💚 هيل ${f.val} لنفسك`, fn() {
+            closeModal(); modHp(cp(), f.val); addLog(`🌾 ${f.lbl}: هيل ${f.val}`, 'good');
+            askBoys(farms, i + 1, done);
+          }
+        },
+      ]);
+    }
+    function applyRestFarms() {
+      const p = cp();
+      for (const f of p.farms) {
+        if (f.hp <= 0 || f.eff === 'choice') continue;
+        switch (f.eff) {
+          case 'draw': {
+            const dr = drawCapped(f.val, p); p.hand.push(...dr);
+            if (dr.length) addLog(`🌾 ${f.lbl}: سحبت ${dr.length} إضافية`, 'good'); break;
+          }
+          case 'merge': modHp(op(), -f.val); addLog(`🌾 ${f.lbl}: دمج ${f.val}`, 'bad'); break;
+          case 'heal': modHp(p, f.val); addLog(`🌾 ${f.lbl}: هيل ${f.val}`, 'good'); break;
+          case 'mh':
+            // Hybrid: merge 2 on opponent + heal 2 for self each turn
+            modHp(op(), -f.val); modHp(p, f.val);
+            addLog(`🌾 ${f.lbl}: دمج ${f.val} على ${op().name} + هيل ${f.val}`, 'good'); break;
+        }
+        if (checkWin()) return;
+      }
+      drawPhase();
+    }
+
+    function drawPhase() {
+      G.sp = 'draw'; const p = cp();
+      const dr = drawCapped(1, p); p.hand.push(...dr);
+      if (dr.length) {
+        SFX.draw();
+        addLog(`📥 ${p.name} سحب: ${dr.map(c => c.v + c.s).join(' ')}`, 'info');
+        if (!isAITurn()) showPlayedCards(`📥 ${p.name} سحب`, dr);
+      }
+      G.sp = 'main'; render();
+      if (isAITurn()) { setTimeout(aiMainPhase, 500); }
+      else { addLog('▶ مرحلتك — اختر حركة', 'sys'); setTbl('مرحلتك الرئيسية', ''); }
+    }
+
+    function endTurn() {
+      const p = cp(); p.turnsDone++;
+      if (p.hand.length > p.handLim) { const r = p.hand.splice(p.handLim); toDisc(r); addLog(`⚠ تقليم يدك (${r.length})`, 'bad'); }
+      G.cur = 1 - G.cur; render();
+      const nxt = cp();
+      if (isAITurn()) { beginTurn(); }
+      else if (G.gameMode === 'ai') { ho('⚔ دورك يا ' + nxt.name, 'سلّم الجهاز للاعب', beginTurn); }
+      else { ho('⚔ دور ' + nxt.name, 'سلّم الجهاز', beginTurn); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CARD ACTIONS
+       IMPORTANT: actDone / comboUsed set ONLY after full commit.
+       Cancel always returns without setting any flag.
+    ═══════════════════════════════════════════════════════════════ */
+    function doPlay() {
+      const p = cp();
+      if (p.actDone) { addLog('❌ استُخدمت حركتك هذا الدور — أنهِ دورك أولاً', 'bad'); return; }
+      const sel = selCards();
+      if (!sel.length) { addLog('💡 اختر بطاقة من يدك أولاً بالضغط عليها', 'bad'); return; }
+      if (sel.length > 1) { addLog('❌ بطاقة واحدة فقط للعب العادي', 'bad'); return; }
+      const card = sel[0];
+      if (card.v === 'A') { addLog('❌ استخدم زر "هجوم A"', 'bad'); return; }
+      if (card.v === '7') { addLog('❌ استخدم زر "تدبيل"', 'bad'); return; }
+      if (card.v === '8') {
+        showModal('اختر تأثير 8', `${card.v}${card.s} — دمج 1 أو هيل 1`, [
+          { lbl: '⚔ دمج 1', fn() { closeModal(); execPickTarget(1, [card], false); } },
+          { lbl: '💚 هيل 1', fn() { closeModal(); p.actDone = true; applyHeal(p, 1, [card]); } },
+          { lbl: '❌ إلغاء', fn: closeModal },
+        ]); return;
+      }
+      if (card.v === 'J') {
+        showModal('اختر تأثير J', `${card.v}${card.s} — دمج 2 أو هيل 2`, [
+          { lbl: '⚔ دمج 2', fn() { closeModal(); execPickTarget(2, [card], false); } },
+          { lbl: '💚 هيل 2', fn() { closeModal(); p.actDone = true; applyHeal(p, 2, [card]); } },
+          { lbl: '❌ إلغاء', fn: closeModal },
+        ]); return;
+      }
+      const mv = mVal(card), hv = hVal(card);
+      if (mv > 0) { execPickTarget(mv, [card], false); return; }
+      if (hv > 0) { p.actDone = true; applyHeal(p, hv, [card]); return; }
+      addLog('❌ لا تأثير مباشر لهذه البطاقة بمفردها', 'bad');
+    }
+
+    function doDouble() {
+      const p = cp();
+      if (p.actDone) { addLog('❌ استُخدمت حركتك هذا الدور', 'bad'); return; }
+      const sel = selCards();
+      if (sel.length !== 2) { addLog('💡 اختر بطاقتين: 7 + بطاقة أخرى للتدبيل', 'bad'); return; }
+      const sevens = sel.filter(c => c.v === '7'), others = sel.filter(c => c.v !== '7');
+      if (sevens.length !== 1) { addLog('❌ يجب أن تكون إحداهما 7', 'bad'); return; }
+      const target = others[0];
+      if (target.v === 'J') { addLog('❌ لا تُدبَّل J — استخدم الكومبو', 'bad'); return; }
+      if (target.v === 'A') { addLog('❌ لا تُدبَّل A', 'bad'); return; }
+      const mv = mVal(target) * 2, hv = hVal(target) * 2, all = [sevens[0], target];
+      SFX.double();
+      if (mv > 0 && hv > 0) {
+        showModal(`تدبيل ${target.v}${target.s}`, `دمج ${mv} أو هيل ${hv}:`, [
+          { lbl: `⚔ دمج ${mv}`, fn() { closeModal(); execPickTarget(mv, all, false); } },
+          { lbl: `💚 هيل ${hv}`, fn() { closeModal(); p.actDone = true; applyHeal(p, hv, all); } },
+          { lbl: '❌ إلغاء', fn: closeModal },
+        ]);
+      } else if (mv > 0) { execPickTarget(mv, all, false); }
+      else if (hv > 0) { p.actDone = true; applyHeal(p, hv, all); }
+      else addLog('❌ لا يمكن تدبيل هذه البطاقة', 'bad');
+    }
+
+    function doCombo() {
+      const p = cp();
+      if (p.actDone) { addLog('❌ استُخدمت حركتك هذا الدور', 'bad'); return; }
+      if (p.comboUsed) { addLog('❌ كومبو واحد فقط في الدور', 'bad'); return; }
+      const sel = selCards();
+      if (sel.length !== 3) { addLog('💡 الكومبو: اختر 3 بطاقات (ورقة + J + ورقة)', 'bad'); return; }
+      const js = sel.filter(c => c.v === 'J');
+      if (js.length !== 1) { addLog('❌ يجب أن تكون هناك J واحدة بالضبط', 'bad'); return; }
+      const nonJ = sel.filter(c => c.v !== 'J');
+      if (nonJ.some(c => c.v === '7' || c.v === 'A')) { addLog('❌ لا يمكن استخدام 7 أو A في الكومبو', 'bad'); return; }
+      let tm = 0, th = 0; for (const c of nonJ) { tm += mVal(c); th += hVal(c); }
+      addLog(`⚡ كومبو: ${sel.map(c => c.v + c.s).join('+')} → دمج ${tm} + هيل ${th}`, 'sys');
+      VFX.comboFlash();
+      SFX.combo();
+
+      if (tm > 0 && th > 0) {
+        // Show choice — cancel = no flags set
+        showModal('كومبو مختلط', `هيل ${th} لك + دمج ${tm} تختار هدفه:`, [
+          {
+            lbl: `💚 هيل ${th} + ⚔ دمج ${tm}`, fn() {
+              closeModal();
+              p.actDone = true; p.comboUsed = true; // commit only here
+              modHp(p, th); addLog(`💚 هيل ${th}`, 'good');
+              execPickTarget(tm, sel, true); // already committed
+            }
+          },
+          { lbl: '❌ إلغاء', fn: closeModal }, // nothing set
+        ]);
+      } else if (tm > 0) {
+        execPickTarget(tm, sel, false, () => { p.comboUsed = true; });
+      } else if (th > 0) {
+        p.actDone = true; p.comboUsed = true; applyHeal(p, th, sel);
+      } else addLog('❌ الكومبو لا يعطي تأثيراً', 'bad');
+    }
+
+    function doBuildFarm() {
+      const p = cp();
+      if (p.actDone) { addLog('❌ استُخدمت حركتك هذا الدور — أنهِ دورك أولاً', 'bad'); return; }
+      if (!G.initialDeckFinished && G.deck.length > 0) { addLog(`🔒 لا يمكنك بناء فارم: الدك الأولي لم ينتهِ بعد (متبقي ${G.deck.length})`, 'bad'); return; }
+      if (p.turnsDone < FAST) { addLog(`❌ المزارع تُبنى بعد الدور ${FAST} (أنت في #${p.turnsDone + 1})`, 'bad'); return; }
+      const sel = selCards();
+      if (sel.length !== 5) { addLog(`⚠ اختر 5 بطاقات: A + 4 أوراق. حالياً محدد: ${sel.length} بطاقة`, 'bad'); return; }
+      const type = detectFarm(sel);
+      if (!type) {
+        addLog('❌ البطاقات غير متناسقة — لا تُشكّل مزرعة!', 'bad');
+        addLog('ضعيفة: A+4من{7-10} (سحب) | A+2K+2Q (هجين)', 'info');
+        addLog('قوية: A+4K (دمج4) | A+4Q (هيل4) | A+4J (أولاد) | A+7890 نفس شكل (سحب×3)', 'info');
+        return;
+      }
+      execFarm(sel, type);
+    }
+    function execFarm(cards, typeKey) {
+      const p = cp(), def = FD[typeKey];
+      const isDraw = def.eff === 'draw';
+
+      if (isDraw && p.farms.some(f => f.eff === 'draw')) {
+        addLog('❌ لا يمكنك بناء أكثر من مزرعة سحب واحدة! (قم بهدم القديمة أولاً)', 'bad'); return;
+      }
+      if (!isDraw && p.farms.some(f => f.eff !== 'draw')) {
+        addLog('❌ لا يمكنك بناء أكثر من مزرعة قتال/هيل واحدة! (قم بهدم القديمة أولاً)', 'bad'); return;
+      }
+
+      if (p.acePoints < def.cost) { addLog(`❌ تحتاج ${def.cost} أكة (لديك ${p.acePoints})`, 'bad'); return; }
+
+      p.acePoints -= def.cost;
+      rmHand(p, cards.map(c => c.id)); G.sel = [];
+      p.farms.push({ type: typeKey, lbl: def.lbl, eff: def.eff, val: def.val, hp: def.hp, maxHp: def.hp, cards: [...cards], builtOnTurn: G.totalTurns });
+      addLog(`🌾 بُنيت ${def.lbl} — HP:${def.hp} | ${effStr(def.eff, def.val)}`, 'good');
+      p.actDone = true;
+      showModal(`🌾 ${p.name} بنى ${def.lbl}!`,
+        `البطاقات المستخدمة: ${cards.map(c => c.v + c.s).join(' ')}\nالتأثير: ${effStr(def.eff, def.val)}\nHP: ${def.hp}`,
+        [{ lbl: '✅ تم', fn() { closeModal(); } }]);
+      render();
+      VFX.buildFarm(p.id, def.lbl);
+    }
+
+    function doSlot() {
+      const p = cp();
+      if (p.acePoints < 1) { addLog('❌ تحتاج 1 نقطة أكة', 'bad'); return; }
+      if (p.handLim >= MAX_LIM) { addLog(`❌ الحد الأقصى ${MAX_LIM}`, 'bad'); return; }
+      p.acePoints--; p.handLim++; addLog(`📥 خانة مفتوحة! الحد: ${p.handLim}`, 'good'); render();
+    }
+
+    function doAceAtk() {
+      const p = cp();
+      if (p.actDone) { addLog('❌ استُخدمت حركتك هذا الدور', 'bad'); return; }
+      if (p.aceAtkUsed) { addLog('❌ هجوم الأكة: مرة واحدة فقط طوال القيم!', 'bad'); return; }
+      if (p.acePoints < 2) { addLog('💡 تحتاج 2 نقطة أكة (لديك ' + p.acePoints + ')', 'bad'); return; }
+      const aces = p.hand.filter(c => c.v === 'A');
+      if (!aces.length) { addLog('💡 لا يوجد A في يدك — تحتاج بطاقة A', 'bad'); return; }
+      if (aces.length === 1) { execAceAtk(aces[0]); return; }
+      showModal('اختر بطاقة A للحرق', 'لديك ' + aces.length + ' بطاقات A — اختر أيها تحرق:',
+        [...aces.map(a => ({ lbl: `🔥 حرق ${a.v}${a.s}`, fn() { closeModal(); execAceAtk(a); } })),
+        { lbl: '❌ إلغاء', fn: closeModal }]);
+    }
+
+    function doDestroyMyFarm() {
+      const p = cp();
+      if (!p.farms.length) { addLog('💡 لا تملك أي مزرعة لتفجيرها', 'bad'); return; }
+      showModal('💥 هدم مزرعة', 'اختر المزرعة التي تريد تفجيرها:\n(لن تسترد الأكة، والبطاقات ستذهب للمرمية)', [
+        ...p.farms.map(farm => ({
+          lbl: `💥 تفجير ${farm.lbl} (HP:${farm.hp})`,
+          fn() {
+            closeModal();
+            destroyFarm(p, farm);
+            addLog(`💥 ${p.name} فجّر مزرعته (${farm.lbl}) بإرادته!`, 'bad');
+            render();
+          }
+        })),
+        { lbl: '❌ إلغاء', fn: closeModal }
+      ]);
+    }
+
+    function execAceAtk(aCard) {
+      const p = cp();
+      const strongFarms = op().farms.filter(f => canAtkFarm(f, [], true));
+      showModal('💥 هجوم أكة — مرة واحدة فقط طوال القيم!',
+        `${aCard.v}${aCard.s} تُحرق نهائياً + 2 أكة → دمج 5\n(على الخصم أو فارم قوي ⭐ فقط)`, [
+        {
+          lbl: `💥 دمج 5 على ${op().name} (HP:${op().hp})`, fn() {
+            closeModal();
+            VFX.screenFlash();
+            p.acePoints -= 2; p.aceAtkUsed = true; p.actDone = true;
+            rmHand(p, [aCard.id]);
+            addLog(`💥 هجوم أكة! ${p.name} حرق ${aCard.v}${aCard.s} → دمج 5`, 'bad');
+            showDefModal(op(), 5, [], `${p.name} يهاجمك بأكة — دمج 5`);
+          }
+        },
+        ...strongFarms.map(farm => ({
+          lbl: `💥 دمج 5 على ${farm.lbl} (HP:${farm.hp})`,
+          fn() {
+            closeModal();
+            p.acePoints -= 2; p.aceAtkUsed = true; p.actDone = true;
+            rmHand(p, [aCard.id]); applyFarmDmg(farm, 5, []);
+          }
+        })),
+        { lbl: '❌ إلغاء', fn: closeModal },
+      ]);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PICK TARGET
+       committed=true → actDone already set; no cancel button
+       extraCommit → called when target picked (e.g. set comboUsed)
+    ═══════════════════════════════════════════════════════════════ */
+    function execPickTarget(amount, cards, committed, extraCommit = null) {
+      const p = cp(), opp = op();
+      const doCommit = () => { if (!committed) p.actDone = true; if (extraCommit) extraCommit(); };
+      const atkFarms = opp.farms.filter(f => canAtkFarm(f, cards, false));
+      const opts = [
+        {
+          lbl: `⚔ على ${opp.name} (HP:${opp.hp})`, fn() {
+            closeModal(); doCommit();
+            showDefModal(opp, amount, cards, `${p.name} يهاجمك بـ دمج ${amount}`);
+          }
+        },
+        ...atkFarms.map(farm => ({
+          lbl: `🌾 على ${farm.lbl}${FD[farm.type].strong ? ' ⭐' : ''} (HP:${farm.hp})`,
+          fn() { closeModal(); doCommit(); applyFarmDmg(farm, amount, cards); }
+        })),
+      ];
+      if (!committed) opts.push({ lbl: '❌ إلغاء', fn: closeModal });
+      showModal('اختر الهدف', `دمج ${amount} — أين توجّهه?`, opts);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       COMBAT
+    ═══════════════════════════════════════════════════════════════ */
+    function showDefModal(defender, amount, cards, msg) {
+      const attacker = cp();
+      const canDef = !defender.defUsed && defender.acePoints >= 2;
+      const applyHit = () => {
+        modHp(defender, -amount);
+        addLog(`⚔ دمج ${amount} على ${defender.name} → HP:${defender.hp}`, 'bad');
+        cleanupAtk(attacker, cards); checkWin(); render();
+      };
+      const applyDef = () => {
+        defender.acePoints -= 2; defender.defUsed = true;
+        addLog(`🛡 ${defender.name} دافع! ⛔ لا يمكنه الدفاع مرة أخرى طوال القيم`, 'sys');
+        cleanupAtk(attacker, cards); render();
+      };
+      // AI defense
+      if (G.gameMode === 'ai' && defender.isAI) {
+        setTimeout(() => { if (canDef && amount >= 4) applyDef(); else applyHit(); }, 350); return;
+      }
+      if (canDef) {
+        showModal(`${defender.name}: هل تدافع؟`,
+          `${msg}\n\n⚠ الدفاع مسموح مرة واحدة فقط طوال القيم!\nلديك ${defender.acePoints} أكة. تكلفة: 2 أكة.`, [
+          { lbl: '🛡 دفاع! (آخر مرة في القيم)', fn() { closeModal(); applyDef(); } },
+          { lbl: `❌ تقبّل الضرر (${amount})`, fn() { closeModal(); applyHit(); } },
+        ]);
+      } else {
+        const why = defender.defUsed ? '⛔ استُخدم الدفاع مسبقاً' : `أكة غير كافية (${defender.acePoints}/2)`;
+        showModal(`هجوم على ${defender.name}`, `${msg}\n\n${why}\n${defender.name} يخسر ${amount} نقاط.`,
+          [{ lbl: '✅ تأكيد', fn() { closeModal(); applyHit(); } }]);
+      }
+    }
+    function cleanupAtk(attacker, cards) {
+      if (cards.length) {
+        showPlayedCards(`⚔ ${attacker.name} لعب`, cards);
+        rmHand(attacker, cards.map(c => c.id)); toDisc(cards);
+      } G.sel = [];
+    }
+    function applyHeal(p, amount, cards) {
+      modHp(p, amount); addLog(`💚 هيل ${amount} → ${p.name} HP:${p.hp}`, 'good');
+      showPlayedCards(`💚 ${p.name} هيل`, cards);
+      rmHand(p, cards.map(c => c.id)); toDisc(cards); G.sel = []; render();
+    }
+    function applyFarmDmg(farm, amount, cards) {
+      const attacker = cp();
+      if (cards.length) { rmHand(attacker, cards.map(c => c.id)); toDisc(cards); }
+      G.sel = [];
+      VFX.shakeFarm(op().id, farm.lbl);
+      const prev = farm.hp; farm.hp = Math.max(0, farm.hp - amount);
+      addLog(`⚔ دمج ${amount} على ${farm.lbl} (${prev}→${farm.hp})`, 'bad');
+      if (farm.hp <= 0) {
+        VFX.explodeFarm(op().id, farm.lbl);
+        if (attacker.acePoints >= 1) { attacker.acePoints--; addLog('💸 حرق 1 أكة (ضربة قاضية)', 'bad'); }
+        destroyFarm(op(), farm);
+      }
+      render();
+    }
+    function destroyFarm(p, farm) {
+      p.farms = p.farms.filter(f => f !== farm); toDisc(farm.cards); addLog(`💥 دُمِّرت ${farm.lbl}!`, 'bad');
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       WIN
+    ═══════════════════════════════════════════════════════════════ */
+    function checkWin() {
+      for (const p of G.players) {
+        if (p.hp <= 0) {
+          G.phase = 'win'; aiShow(false);
+          const w = G.players[1 - p.id];
+          $i('wtit').textContent = `🏆 ${w.name} فاز!`;
+          $i('wsub').textContent = `${p.name} سقطت حياته إلى ${p.hp}`;
+          $i('wscr').classList.add('on'); render(); return true;
+        }
+      }
+      return false;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       AI ENGINE
+    ═══════════════════════════════════════════════════════════════ */
+    function aiShow(on) { $i('aithink').style.display = on ? 'block' : 'none'; }
+
+    function aiMainPhase() {
+      const p = cp(), opp = op(), h = p.hand;
+      // P1: Winning ace attack
+      if (!p.aceAtkUsed && p.acePoints >= 2 && h.some(c => c.v === 'A') && opp.hp <= 5) { aiDoAceAtk(); return; }
+      // P2: Kill dangerous strong farm
+      const dangerFarms = opp.farms.filter(f => attackable(f) && (f.eff === 'merge' || f.eff === 'choice'));
+      if (dangerFarms.length) {
+        const target = dangerFarms[0];
+        const ac = h.filter(c => mVal(c) > 0 && c.v !== 'A').sort((a, b) => mVal(b) - mVal(a));
+        if (ac.length && mVal(ac[0]) >= target.hp) { aiDoFarmAtk(ac[0], target); return; }
+      }
+      // P3: Best combo
+      const j = h.find(c => c.v === 'J');
+      if (!p.comboUsed && j) {
+        const nonJ = h.filter(c => c.v !== 'J' && c.v !== 'A' && c.v !== '7');
+        if (nonJ.length >= 2) {
+          const s = [...nonJ].sort((a, b) => mVal(b) - mVal(a));
+          const tm = mVal(s[0]) + mVal(s[1]), th = hVal(s[0]) + hVal(s[1]);
+          if (tm + th > 0) { aiDoCombo(s[0], j, s[1], tm, th); return; }
+        }
+      }
+      // P4: Double
+      const seven = h.find(c => c.v === '7');
+      if (seven) {
+        const best = h.filter(c => c.v !== '7' && c.v !== 'A' && c.v !== 'J').sort((a, b) => mVal(b) - mVal(a))[0];
+        if (best && mVal(best) > 0) { aiDoDouble(seven, best); return; }
+      }
+      // P5: Heal if low
+      if (p.hp <= 10) { const hc = h.filter(c => hVal(c) > 0 && c.v !== 'A').sort((a, b) => hVal(b) - hVal(a)); if (hc.length) { aiDoHeal(hc[0]); return; } }
+      // P6: Best single attack
+      const ac = h.filter(c => mVal(c) > 0 && c.v !== 'A').sort((a, b) => mVal(b) - mVal(a));
+      if (ac.length) { aiDoAtk(ac[0]); return; }
+      // P7: Heal anyway
+      const hc = h.filter(c => hVal(c) > 0 && c.v !== 'A').sort((a, b) => hVal(b) - hVal(a));
+      if (hc.length) { aiDoHeal(hc[0]); return; }
+      // P8: Ace attack
+      if (!p.aceAtkUsed && p.acePoints >= 2 && h.some(c => c.v === 'A')) { aiDoAceAtk(); return; }
+      // Pass
+      p.actDone = true; addLog('🤖 AI تمرّر', 'info'); setTimeout(() => { aiShow(false); endTurn(); }, 400);
+    }
+    function aiDoFarmAtk(card, farm) {
+      const p = cp(), dmg = mVal(card); p.actDone = true;
+      addLog(`🤖 AI هجوم على ${farm.lbl}: ${card.v}${card.s} → دمج ${dmg}`, 'bad');
+      showPlayedCards(`🤖 AI هجوم على ${farm.lbl}`, [card], () => {
+        rmHand(p, [card.id]); toDisc([card]); G.sel = []; applyFarmDmg(farm, dmg, []);
+        render(); aiShow(false); endTurn();
+      });
+    }
+    function aiDoCombo(c1, j, c2, tm, th) {
+      const p = cp(), cards = [c1, j, c2]; p.actDone = true; p.comboUsed = true;
+      addLog(`🤖 AI كومبو: ${cards.map(c => c.v + c.s).join('+')} → د${tm}+ه${th}`, 'sys');
+      showPlayedCards(`🤖 AI كومبو`, cards, () => {
+        if (th > 0) { modHp(p, th); addLog(`💚 AI هيل ${th}`, 'good'); }
+        rmHand(p, cards.map(c => c.id)); toDisc(cards); G.sel = [];
+        if (tm > 0) aiApplyDmg(tm); else { render(); aiShow(false); endTurn(); }
+      });
+    }
+    function aiDoDouble(seven, target) {
+      const p = cp(), dmg = mVal(target) * 2, cards = [seven, target]; p.actDone = true;
+      addLog(`🤖 AI تدبيل: ${target.v}${target.s}+7 → دمج ${dmg}`, 'bad');
+      showPlayedCards(`🤖 AI تدبيل`, cards, () => {
+        rmHand(p, cards.map(c => c.id)); toDisc(cards); G.sel = []; aiApplyDmg(dmg);
+      });
+    }
+    function aiDoAtk(card) {
+      const p = cp(), dmg = mVal(card); p.actDone = true;
+      addLog(`🤖 AI هجوم: ${card.v}${card.s} → دمج ${dmg}`, 'bad');
+      showPlayedCards(`🤖 AI هجوم`, [card], () => {
+        rmHand(p, [card.id]); toDisc([card]); G.sel = []; aiApplyDmg(dmg);
+      });
+    }
+    function aiDoHeal(card) {
+      const p = cp(), amount = hVal(card); p.actDone = true;
+      addLog(`🤖 AI هيل: ${card.v}${card.s} → +${amount}`, 'good');
+      showPlayedCards(`🤖 AI هيل`, [card], () => {
+        rmHand(p, [card.id]); toDisc([card]); G.sel = []; modHp(p, amount); render();
+        aiShow(false); endTurn();
+      });
+    }
+    function aiDoAceAtk() {
+      const p = cp(), aCard = p.hand.find(c => c.v === 'A');
+      if (!aCard) { p.actDone = true; setTimeout(() => { aiShow(false); endTurn(); }, 300); return; }
+      p.acePoints -= 2; p.aceAtkUsed = true; p.actDone = true;
+      rmHand(p, [aCard.id]); addLog(`💥 AI هجوم أكة! دمج 5 على ${op().name}`, 'bad');
+      VFX.screenFlash();
+      showPlayedCards(`💥 AI هجوم أكة!`, [aCard], () => {
+        aiApplyDmg(5);
+      });
+    }
+    function aiApplyDmg(amount) {
+      const opp = op();
+      // Kill a strong farm?
+      const kill = opp.farms.filter(f => attackable(f) && f.hp <= amount && (f.eff === 'merge' || f.eff === 'choice'));
+      if (kill.length) {
+        const farm = kill[0], prev = farm.hp; farm.hp = 0;
+        addLog(`🤖 AI → ${farm.lbl} (${prev}→0)`, 'bad');
+        const p = cp(); if (p.acePoints >= 1) { p.acePoints--; addLog('💸 حرق 1 أكة', 'bad'); }
+        destroyFarm(opp, farm); render(); setTimeout(() => { aiShow(false); endTurn(); }, 400); return;
+      }
+      // Direct attack
+      const canDef = !opp.defUsed && opp.acePoints >= 2 && !opp.isAI;
+      if (canDef) {
+        render();
+        showModal(`${opp.name}: هل تدافع؟`,
+          `🤖 AI يهاجمك بـ دمج ${amount}\n\n⚠ الدفاع مرة واحدة فقط طوال القيم!\nلديك ${opp.acePoints} أكة. تكلفة: 2 أكة.`, [
+          {
+            lbl: '🛡 دفاع! (آخر مرة في القيم)', fn() {
+              closeModal(); opp.acePoints -= 2; opp.defUsed = true;
+              addLog(`🛡 ${opp.name} دافع! ⛔ لا يمكنه الدفاع مرة أخرى`, 'sys');
+              render(); setTimeout(() => { aiShow(false); endTurn(); }, 350);
+            }
+          },
+          {
+            lbl: `❌ تقبّل الضرر (${amount})`, fn() {
+              closeModal(); modHp(opp, -amount); addLog(`⚔ AI دمج ${amount} → ${opp.name} HP:${opp.hp}`, 'bad');
+              if (checkWin()) return; render(); setTimeout(() => { aiShow(false); endTurn(); }, 350);
+            }
+          },
+        ]);
+      } else {
+        const why = opp.defUsed ? '(دفاعه مستنفد)' : `(أكة: ${opp.acePoints}/2)`;
+        modHp(opp, -amount); addLog(`⚔ AI دمج ${amount} → ${opp.name} HP:${opp.hp} ${why}`, 'bad');
+        if (checkWin()) return; render(); setTimeout(() => { aiShow(false); endTurn(); }, 400);
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODAL & UI
+    ═══════════════════════════════════════════════════════════════ */
+    function showModal(title, body, btns, isHtml) {
+      $i('mtit').textContent = title;
+      if (isHtml) $i('mbod').innerHTML = body;
+      else $i('mbod').textContent = body;
+      const el = $i('mbtns'); el.innerHTML = '';
+      for (const b of btns) {
+        const btn = document.createElement('button');
+        btn.className = 'btn' + (b.danger ? ' dan' : b.pri ? ' pri' : '');
+        btn.textContent = b.lbl; btn.onclick = b.fn; el.appendChild(btn);
+      }
+      $i('mov').classList.add('on');
+    }
+    function cardHtml(c) {
+      const rd = ['\u2665', '\u2666'].includes(c.s);
+      return `<div class="card${rd ? ' rd' : ''}" style="cursor:default;display:inline-flex;vertical-align:top;margin:2px"><div>${c.v}<br>${c.s}</div><div class="cm">${c.s}</div><div class="cb">${c.v}<br>${c.s}</div></div>`;
+    }
+    let showcaseCb = null;
+    function showPlayedCards(title, cards, cb = null) {
+      $i('cs-title').textContent = title;
+      $i('cs-cards').innerHTML = cards.map(c => cardHtml(c)).join('');
+      showcaseCb = cb;
+      $i('cshowcase').classList.add('on');
+    }
+    function hideShowcase() {
+      $i('cshowcase').classList.remove('on');
+      if (showcaseCb) { const cb = showcaseCb; showcaseCb = null; cb(); }
+    }
+    function closeModal() { $i('mov').classList.remove('on'); render(); }
+    function ho(title, sub, cb) {
+      $i('hott').textContent = title; $i('hots').textContent = sub || '';
+      $i('hoff').classList.add('on');
+      $i('hbtn').onclick = () => { $i('hoff').classList.remove('on'); cb(); };
+    }
+    function toggleLog() { $i('logpanel').classList.toggle('on'); }
+    function showRules() { $i('rulespanel').classList.add('on'); }
+    function closeRules() { $i('rulespanel').classList.remove('on'); }
+    function setTbl(main, sub) { $i('tbl-stat').textContent = main || ''; $i('tbl-sub').textContent = sub || ''; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RENDER
+    ═══════════════════════════════════════════════════════════════ */
+    function render() { renderStats(); renderHands(); renderBtns(); }
+
+    function renderStats() {
+      for (const p of G.players) {
+        const i = p.id, isAct = G.phase === 'game' && G.cur === i;
+        $i(`n${i}`).textContent = p.name;
+        $i(`t${i}`).innerHTML = isAct ? '<span class="ttag">دورك</span>' : '';
+        $i(`a${i}`).textContent = `♠ أكة: ${p.acePoints}`;
+        const pct = Math.max(0, (p.hp / MAX_HP) * 100);
+        const hpf = $i(`hf${i}`); hpf.style.width = pct + '%'; hpf.className = 'hpf' + (p.hp <= 7 ? ' lo' : '');
+        $i(`ht${i}`).textContent = `HP: ${p.hp}/${MAX_HP} | حد: ${p.handLim}`;
+        $i(`hl${i}`).textContent = `يد: ${p.hand.length}`;
+        $i(`z${i}`).className = 'pz' + (isAct ? ' act' : '');
+        // Farms
+        const fe = $i(`f${i}`); fe.innerHTML = '';
+        for (const farm of p.farms) {
+          const def = FD[farm.type];
+          const fpct = Math.max(0, (farm.hp / farm.maxHp) * 100);
+          const div = document.createElement('div');
+          div.className = 'ftile ' + (def.strong ? 'strong' : 'weak');
+          div.innerHTML = `<div class="fnm">${farm.lbl}${def.strong ? ' ⭐' : ''}</div>
+        <div class="fef">${effStr(farm.eff, farm.val)}</div>
+        <div style="font-size:.57rem;color:var(--dim)">HP: ${farm.hp}/${farm.maxHp}</div>
+        <div class="fhpb"><div class="fhpf${fpct < 40 ? ' lo' : ''}" style="width:${fpct}%"></div></div>`;
+          fe.appendChild(div);
+        }
+      }
+      renderTable();
+      if (G.totalTurns) $i('turn-ctr').textContent = `\u062C\u0648\u0644\u0629 ${Math.ceil(G.totalTurns / 2)} | \u062F\u0648\u0631 #${G.totalTurns}`;
+      const lbl = { farm: '🌾 تفعيل مزارع', draw: '📥 سحب', main: '▶ مرحلة اللعب' };
+      $i('phb').textContent = G.phase === 'redraw' ? 'إعادة السحب' : (lbl[G.sp] || G.sp || '—');
+      const sc = G.phase === 'game' && !isAITurn() ? selCards() : [];
+      $i('si').textContent = sc.length ? `محدد: ${sc.map(c => c.v + c.s).join('  ')}` : '';
+      if (G.phase === 'game' && !isAITurn()) {
+        const p = cp(), f = [];
+        if (p.defUsed) f.push('⛔ الدفاع مُستنفد');
+        if (p.aceAtkUsed) f.push('⛔ هجوم A مُستنفد');
+        $i('flags').textContent = f.join(' | ');
+      } else $i('flags').textContent = '';
+    }
+
+    function renderTable() {
+      $i('dc').textContent = G.deck ? G.deck.length : 0;
+      $i('dsc').textContent = G.disc ? G.disc.length : 0;
+      if ($i('dlbl')) $i('dlbl').textContent = G.deckCount > 1 ? `الدك ${G.deckCount}` : 'الدك الأولي';
+      const dtop = $i('disc-top');
+      if (G.disc && G.disc.length) {
+        const c = G.disc[G.disc.length - 1]; const rd = RED.has(c.s);
+        dtop.className = 'card' + (rd ? ' rd' : '');
+        dtop.style.cssText = 'width:var(--cw);height:var(--ch);cursor:default';
+        dtop.innerHTML = `<div>${c.v}<br>${c.s}</div><div class="cm">${c.s}</div><div class="cb">${c.v}<br>${c.s}</div>`;
+      } else {
+        dtop.className = '';
+        dtop.style.cssText = 'width:var(--cw);height:var(--ch);border-radius:5px;border:1.5px dashed var(--dim2);display:flex;align-items:center;justify-content:center;font-size:.58rem;color:var(--dim)';
+        dtop.textContent = 'فارغ';
+      }
+      const pp = $i('played-pile'); pp.innerHTML = '';
+      if (G.disc && G.disc.length) {
+        const show = G.disc.slice(-4);
+        show.forEach((c, i) => {
+          const rd = RED.has(c.s); const div = document.createElement('div');
+          div.className = 'card' + (rd ? ' rd' : '');
+          div.style.cssText = `position:absolute;top:${i * 2}px;right:${i * 2}px;z-index:${i};cursor:default;transform:rotate(${(i - 1.5) * 3}deg)`;
+          div.innerHTML = `<div>${c.v}<br>${c.s}</div><div class="cm">${c.s}</div><div class="cb">${c.v}<br>${c.s}</div>`;
+          pp.appendChild(div);
+        });
+      }
+    }
+
+    function renderHands() {
+      for (const p of G.players) {
+        const i = p.id, he = $i(`h${i}`); he.innerHTML = '';
+        const showFace = (G.phase === 'game' && G.cur === i && !isAITurn()) || (G.phase === 'redraw' && G.cur === i);
+        if (showFace) { for (const card of p.hand) he.appendChild(mkCard(card, i)); }
+        else { for (let k = 0; k < p.hand.length; k++) { const d = document.createElement('div'); d.className = 'cbk'; d.textContent = '🂠'; he.appendChild(d); } }
+      }
+    }
+    function mkCard(card, pIdx) {
+      const rd = RED.has(card.s), sel = G.sel.includes(card.id);
+      const div = document.createElement('div');
+      div.className = `card${rd ? ' rd' : ''}${sel ? ' sel' : ''}`;
+      div.innerHTML = `<div>${card.v}<br>${card.s}</div><div class="cm">${card.s}</div><div class="cb">${card.v}<br>${card.s}</div>`;
+      div.onclick = () => toggleCard(card.id, pIdx); return div;
+    }
+    function toggleCard(id, pIdx) {
+      if (G.phase !== 'game' || G.cur !== pIdx || isAITurn() || G.sp !== 'main') return;
+      const i = G.sel.indexOf(id); i >= 0 ? G.sel.splice(i, 1) : G.sel.push(id);
+      renderStats(); renderHands(); renderBtns();
+    }
+
+    function renderBtns() {
+      const inMain = G.phase === 'game' && G.sp === 'main' && !isAITurn();
+      const p = G.phase === 'game' ? cp() : null; const done = p ? p.actDone : true;
+      $b('bplay', !inMain || done);
+      $b('bdbl', !inMain || done);
+      $b('bcombo', !inMain || done || (p && p.comboUsed));
+      $b('bfarm', !inMain || done);
+      $b('bslot', !inMain || !p || p.acePoints < 1 || p.handLim >= MAX_LIM);
+      $b('bdestroy', !inMain || !p || p.farms.length === 0);
+      $b('batk', !inMain || done || !p || p.acePoints < 2 || p.aceAtkUsed || !p.hand.some(c => c.v === 'A'));
+      $b('bpass', !inMain || done);
+      $b('bend', !inMain);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UTILS
+    ═══════════════════════════════════════════════════════════════ */
+    const $i = id => document.getElementById(id);
+    const $b = (id, dis) => { const e = $i(id); if (e) e.disabled = !!dis; };
+
+    /* ═══════════════════════════════════════════════════════════════
+       EVENTS
+    ═══════════════════════════════════════════════════════════════ */
+    $i('s2p').onclick = () => { $i('sscr').style.display = 'none'; initGame('hotseat'); };
+    $i('sai').onclick = () => {
+      if (!$i('p2name').value || $i('p2name').value === 'لاعب 2') $i('p2name').value = 'AI';
+      $i('sscr').style.display = 'none'; initGame('ai');
+    };
+    $i('bplay').onclick = doPlay;
+    $i('bdbl').onclick = doDouble;
+    $i('bcombo').onclick = doCombo;
+    $i('bfarm').onclick = doBuildFarm;
+    $i('bslot').onclick = doSlot;
+    $i('batk').onclick = doAceAtk;
+    $i('bdestroy').onclick = doDestroyMyFarm;
+    $i('bpass').onclick = () => { const p = cp(); if (!p.actDone) { p.actDone = true; addLog(`${p.name}: تمرّر`, 'info'); render(); } };
+    $i('bend').onclick = () => { if (G.phase === 'game' && G.sp === 'main' && !isAITurn()) endTurn(); };
+  </script>
+</body>
+
+</html>
